@@ -10,6 +10,7 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "MainComponent.h"
+#include <iostream>
 
 //==============================================================================
 class SinoscillatorApplication  : public JUCEApplication

@@ -115,6 +115,7 @@ public:
 		}
 		if (slider == &attackSlider)
 		{
+			std::cout << "updateA" << std::endl;
 			updateA();
 		}
 		if (slider == &decaySlider)

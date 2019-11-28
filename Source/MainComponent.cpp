@@ -407,19 +407,23 @@ void MainComponent::initGUI()
 	attackSlider.setSliderStyle(Slider::SliderStyle::LinearVertical);
 	attackSlider.setTextBoxStyle(Slider::TextBoxBelow, false, 50, 20);
 	attackSlider.setRange(0, 1, 0.01);
+	attackSlider.addListener(this);
 
 	addAndMakeVisible(decaySlider);
 	decaySlider.setSliderStyle(Slider::SliderStyle::LinearVertical);
 	decaySlider.setTextBoxStyle(Slider::TextBoxBelow, false, 50, 20);
 	decaySlider.setRange(0, 1, 0.01);
+	decaySlider.addListener(this);
 
 	addAndMakeVisible(sustainSlider);
 	sustainSlider.setSliderStyle(Slider::SliderStyle::LinearVertical);
 	sustainSlider.setTextBoxStyle(Slider::TextBoxBelow, false, 50, 20);
 	sustainSlider.setRange(0, 1, 0.01);
+	sustainSlider.addListener(this);
 
 	addAndMakeVisible(releaseSlider);
 	releaseSlider.setSliderStyle(Slider::SliderStyle::LinearVertical);
 	releaseSlider.setTextBoxStyle(Slider::TextBoxBelow, false, 50, 20);
 	releaseSlider.setRange(0, 1, 0.01);
+	releaseSlider.addListener(this);
 }

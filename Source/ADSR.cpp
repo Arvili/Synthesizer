@@ -11,6 +11,7 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "ADSR.h"
 #include<math.h>
+#include <iostream>
 
 //==============================================================================
 
@@ -20,10 +21,11 @@ ADSr::ADSr()
     // initialise any special settings that your component needs.
 	output = 0;
 	env_stage = env_off;
-	attackLength = 0.1;
+	attackLength = 1;
 	decayLength = 0.2;
 	sustainLevel = 1;
 	releaseLength = 0.2;
+	currentSampleRate = 44100;
 	updateAttack(attackLength);
 	updateDecay(decayLength);
 	updateRelease(releaseLength);
@@ -41,8 +43,7 @@ double ADSr::Process()
 		case env_off:
 			break;
 		case env_attack:
-			output = minVal + output;
-			printf("wat");
+			output = attackCof + output;
 			if (output > 1)
 			{	
 				env_stage = env_decay;
@@ -50,7 +51,7 @@ double ADSr::Process()
 			}
 			break;
 		case env_decay:
-			output = 0.1;
+			output = decayCof*output;
 			if (output < sustainLevel)
 			{
 				output = sustainLevel;
@@ -62,7 +63,7 @@ double ADSr::Process()
 			break;
 		case env_release:
 			//output = releaseCof * output;
-			output = output-minVal;
+			output = releaseCof*output;
 			if (output < minVal)
 			{
 				output = 0;
@@ -71,7 +72,7 @@ double ADSr::Process()
 			break;
 
 		
-	}
+	}	
 	return output;
 }
 
@@ -84,7 +85,9 @@ double ADSr::calculateCof(double start, double target, double length)
 void ADSr::updateAttack(double aLength)
 {
 	attackLength = (minVal+aLength)*currentSampleRate;
-	attackCof = calculateCof(minVal, maxVal, attackLength);
+	attackCof = 1 / attackLength;
+	
+	
 }
 
 void ADSr::updateDecay(double dLength) {
@@ -112,7 +115,7 @@ void ADSr::setSampleRate(double sampleRate)
 double ADSr::getEnvStage() {
 	return env_stage;
 }
-void ADSr::setEnvStage(ADSr::EnvelopeStage env)
+void ADSr::setEnvStage(EnvelopeStage env)
 {
 	env_stage = env;
 }

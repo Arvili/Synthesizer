@@ -14,6 +14,7 @@ class MainComponent : public AudioAppComponent,
 					  //public Button::Listener,
 					  //public MidiKeyboardStateListener,
 					  public KeyListener
+					  // DocumentWindow
 {
 public:
 	MidiKeyboardState keyboardState;
@@ -115,7 +116,6 @@ public:
 		}
 		if (slider == &attackSlider)
 		{
-			std::cout << "updateA" << std::endl;
 			updateA();
 		}
 		if (slider == &decaySlider)

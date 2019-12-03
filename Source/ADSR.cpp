@@ -39,20 +39,21 @@ ADSr::~ADSr()
 
 double ADSr::Process()
 {
+	
 	switch (env_stage) {
 		case env_off:
 			break;
 		case env_attack:
-			output = attackCof + output;
+			output = minVal + attackCof*output;
 			if (output > 1)
 			{	
 				env_stage = env_decay;
-				output = 1;
+				//output = 1;
 			}
 			break;
 		case env_decay:
 			output = decayCof*output;
-			if (output < sustainLevel)
+			if (output <= sustainLevel)
 			{
 				output = sustainLevel;
 				env_stage = env_sustain;
@@ -84,26 +85,29 @@ double ADSr::calculateCof(double start, double target, double length)
 
 void ADSr::updateAttack(double aLength)
 {
-	attackLength = (minVal+aLength)*currentSampleRate;
-	attackCof = 1 / attackLength;
-	
-	
+	attackLength = (minVal+aLength)*2*currentSampleRate;
+	//attackCof = 1 / attackLength;
+	attackCof = calculateCof(minVal, maxVal, attackLength);
+	std::cout << attackCof << std::endl;
 }
 
 void ADSr::updateDecay(double dLength) {
-	decayLength = (minVal+dLength)*currentSampleRate;
+	decayLength = (minVal+dLength)*2*currentSampleRate;
 	decayCof = calculateCof(maxVal, sustainLevel, decayLength);
+	std::cout << decayCof << std::endl;
 }
 
 void ADSr::updateSustain(double sLevel)
 {
 	sustainLevel = sLevel;
+	std::cout << sustainLevel << std::endl;
 }
 
 void ADSr::updateRelease(double rLength) 
 {
-	releaseLength = (minVal+rLength)*currentSampleRate;
+	releaseLength = (minVal+rLength)*2*currentSampleRate;
 	releaseCof = calculateCof(sustainLevel, minVal, releaseLength);
+	std::cout << releaseCof << std::endl;
 }
 
 void ADSr::setSampleRate(double sampleRate)

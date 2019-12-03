@@ -13,7 +13,7 @@
 MainComponent::MainComponent()
 	: keyboardComponent(keyboardState, MidiKeyboardComponent::horizontalKeyboard)
 {
-	setSize(800, 600);
+	setSize(1000, 400);
 	initGUI();
 	/*auto midiInputs = MidiInput::getDevices();
 	for (auto midiInput : midiInputs)
@@ -199,9 +199,11 @@ void MainComponent::paint (Graphics& g)
    */
 
 	g.fillAll(Colour(0xff333333));
+
+	
 	getLookAndFeel().setColour(Slider::rotarySliderOutlineColourId, Colour(0xff555555));
 	getLookAndFeel().setColour(Slider::backgroundColourId, Colour(0xff555555));
-	getLookAndFeel().setColour(Slider::thumbColourId, Colour(0xff333333));
+	getLookAndFeel().setColour(Slider::thumbColourId, Colour(0xff444444));
 	getLookAndFeel().setColour(ComboBox::backgroundColourId, Colour(0xff555555));
 	getLookAndFeel().setColour(ComboBox::arrowColourId, Colour(0xff555555));
 	getLookAndFeel().setColour(ComboBox::buttonColourId, Colour(0xff555555));
@@ -227,23 +229,41 @@ void MainComponent::paint (Graphics& g)
 	sustainSlider.setColour(Slider::trackColourId, Colour(0xff800000));
 	releaseSlider.setColour(Slider::trackColourId, Colour(0xff800000));
 		//frequencySlider.setLookAndFeel();
-	
+	int itemMargin = 10;
+	Rectangle<int> area = getLocalBounds();
+	Rectangle<int> controlArea = area;//.removeFromTop(area.getHeight() / 2);
+	Rectangle<int> oscillatorArea = controlArea.removeFromLeft(controlArea.getWidth() / 2);
+	Rectangle<int> osc1Area = (oscillatorArea.removeFromTop(area.getHeight() / 3)).reduced(itemMargin);
+	Rectangle<int> osc2Area = (oscillatorArea.removeFromTop(area.getHeight() / 3)).reduced(itemMargin);
+	Rectangle<int> lfoArea = oscillatorArea.reduced(itemMargin);
+	Rectangle<int> filterArea = (controlArea.removeFromLeft(controlArea.getWidth() / 4)).reduced(itemMargin);
+	Rectangle<int> ADSRArea = controlArea.reduced(itemMargin);
+	g.setColour(Colour(0xff444444));
+	g.fillRect(osc1Area);
+	g.fillRect(osc2Area);
+	g.fillRect(lfoArea);
+	g.fillRect(filterArea);
+	g.fillRect(ADSRArea);
+
 }
   
 
 void MainComponent::resized()
 {
+	int itemMargin = 15;
+
 	Rectangle<int> area = getLocalBounds();
-	Rectangle<int> controlArea = area.removeFromTop(area.getHeight()/2);
+	Rectangle<int> controlArea = area;//area.removeFromTop(area.getHeight()/2);
 	Rectangle<int> oscillatorArea = controlArea.removeFromLeft(controlArea.getWidth() / 2);
-	Rectangle<int> osc1Area = oscillatorArea.removeFromTop(area.getHeight() / 3);
+	Rectangle<int> osc1Area = (oscillatorArea.removeFromTop(area.getHeight() / 3)).reduced(itemMargin);
 	
-	Rectangle<int> osc2Area = oscillatorArea.removeFromTop(area.getHeight() / 3);
-	Rectangle<int> lfoArea = oscillatorArea;
+	
+	Rectangle<int> osc2Area = (oscillatorArea.removeFromTop(area.getHeight() / 3)).reduced(itemMargin);
+	Rectangle<int> lfoArea = oscillatorArea.reduced(itemMargin);
 	Rectangle<int> lfoLabel = lfoArea.removeFromLeft(oscillatorArea.getWidth() / 6);
 	Rectangle<int> keyboardArea = area.removeFromBottom(area.getHeight() / 3);
-	Rectangle<int> filterArea = controlArea.removeFromLeft(controlArea.getWidth() / 4);
-	Rectangle<int> ADSRArea = controlArea; //.removeFromBottom(controlArea.getHeight() / 2);
+	Rectangle<int> filterArea = (controlArea.removeFromLeft(controlArea.getWidth() / 4)).reduced(itemMargin);
+	Rectangle<int> ADSRArea = controlArea.reduced(itemMargin); //.removeFromBottom(controlArea.getHeight() / 2);
 	
 	oscillator1_label.setBounds(osc1Area.removeFromLeft(oscillatorArea.getWidth() / 6));
 	amplitudeSlider.setBounds(osc1Area.removeFromLeft(osc1Area.getWidth() / 3));

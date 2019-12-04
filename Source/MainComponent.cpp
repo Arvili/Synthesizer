@@ -237,14 +237,31 @@ void MainComponent::paint (Graphics& g)
 	Rectangle<int> osc2Area = (oscillatorArea.removeFromTop(area.getHeight() / 3)).reduced(itemMargin);
 	Rectangle<int> lfoArea = oscillatorArea.reduced(itemMargin);
 	Rectangle<int> filterArea = (controlArea.removeFromLeft(controlArea.getWidth() / 4)).reduced(itemMargin);
-	Rectangle<int> ADSRArea = controlArea.reduced(itemMargin);
+	Rectangle<int> ADSRArea = controlArea.removeFromBottom(controlArea.getHeight()/2).reduced(itemMargin);
+	Rectangle<int> plotArea = controlArea.reduced(itemMargin);
+	Rectangle<int> plotPlot = plotArea.reduced(itemMargin);
 	g.setColour(Colour(0xff444444));
 	g.fillRect(osc1Area);
 	g.fillRect(osc2Area);
 	g.fillRect(lfoArea);
 	g.fillRect(filterArea);
 	g.fillRect(ADSRArea);
+	g.fillRect(plotArea);
+	g.setColour(Colour(0xff555555));
+	//g.fillRect(plotArea.reduced(itemMargin));
+	g.fillRect(plotPlot);
+	ADSRStart = plotPlot.getBottomLeft();
+	DrawADSR(g);
 
+}
+
+void MainComponent::DrawADSR(Graphics& g) {
+	Path path;
+	path.startNewSubPath(645,180);
+
+	path.lineTo(750, 100);
+	g.setColour(Colour(0xff800000));
+	g.fillPath(path);
 }
   
 
@@ -263,7 +280,7 @@ void MainComponent::resized()
 	Rectangle<int> lfoLabel = lfoArea.removeFromLeft(oscillatorArea.getWidth() / 6);
 	Rectangle<int> keyboardArea = area.removeFromBottom(area.getHeight() / 3);
 	Rectangle<int> filterArea = (controlArea.removeFromLeft(controlArea.getWidth() / 4)).reduced(itemMargin);
-	Rectangle<int> ADSRArea = controlArea.reduced(itemMargin); //.removeFromBottom(controlArea.getHeight() / 2);
+	Rectangle<int> ADSRControlArea = controlArea.removeFromBottom(controlArea.getHeight()/2).reduced(itemMargin); //.removeFromBottom(controlArea.getHeight() / 2);
 	
 	oscillator1_label.setBounds(osc1Area.removeFromLeft(oscillatorArea.getWidth() / 6));
 	amplitudeSlider.setBounds(osc1Area.removeFromLeft(osc1Area.getWidth() / 3));
@@ -291,10 +308,16 @@ void MainComponent::resized()
 	//filterModeSlider.setBounds(filterArea);
 	filterMenu.setBounds(filterArea.getX()+5,filterArea.getY()+30,filterArea.getWidth()-10, filterArea.getHeight()-60);
 
+	/*
 	attackSlider.setBounds(ADSRArea.getX(), ADSRArea.getY()+ADSRArea.getHeight()/4, ADSRArea.getWidth()/4, ADSRArea.getHeight()/2);
 	decaySlider.setBounds(ADSRArea.getX()+ADSRArea.getWidth()/4, ADSRArea.getY() + ADSRArea.getHeight() / 4, ADSRArea.getWidth() / 4, ADSRArea.getHeight() / 2);
 	sustainSlider.setBounds(ADSRArea.getX() + 2*ADSRArea.getWidth() / 4, ADSRArea.getY() + ADSRArea.getHeight() / 4, ADSRArea.getWidth() / 4, ADSRArea.getHeight() / 2);
 	releaseSlider.setBounds(ADSRArea.getX() + 3*ADSRArea.getWidth() / 4, ADSRArea.getY() + ADSRArea.getHeight() / 4, ADSRArea.getWidth() / 4, ADSRArea.getHeight() / 2);
+	*/
+	attackSlider.setBounds(ADSRControlArea.removeFromLeft(ADSRControlArea.getWidth() / 4));
+	decaySlider.setBounds(ADSRControlArea.removeFromLeft(ADSRControlArea.getWidth() / 3));
+	sustainSlider.setBounds(ADSRControlArea.removeFromLeft(ADSRControlArea.getWidth() / 2));
+	releaseSlider.setBounds(ADSRControlArea.removeFromLeft(ADSRControlArea.getWidth()));
 }
 
 void MainComponent::initGUI()

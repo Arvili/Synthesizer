@@ -53,6 +53,7 @@ public:
 	void updateR();
 
     void paint (Graphics& g) override;
+	void DrawADSR(Graphics& g);
     void resized() override;
 	void initGUI();
 
@@ -285,6 +286,7 @@ private:
 	ADSr ADSR;
 
 	bool isNotMuted = false;
+	Point<int> ADSRStart;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };

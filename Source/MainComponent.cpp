@@ -16,8 +16,9 @@
 MainComponent::MainComponent()
 	: keyboardComponent(keyboardState, MidiKeyboardComponent::horizontalKeyboard)
 {
-	setSize(1000, 400);
-	initGUI();
+	setSize(1000, 400);		//Size of window
+	initGUI();				//Initialize GUI
+
 	/*auto midiInputs = MidiInput::getDevices();
 	for (auto midiInput : midiInputs)
 	{
@@ -27,7 +28,8 @@ MainComponent::MainComponent()
 			break;
 		}
 	}*/
-	setAudioChannels(0, 2);
+
+	setAudioChannels(0, 2);	//Set 2 output channels, left and right
 
 }
 
@@ -40,27 +42,31 @@ MainComponent::~MainComponent()
 
 void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRate)
 {
+	/*Called before any samples are derived to device, usually when the program starts*/
 
-	amplitudeSlider.setValue(0.5);
-	waveSlider.setValue(0);
-	frequencySlider.setValue(0);
-	filterFrequencySlider.setValue(20000);
+	amplitudeSlider.setValue(0.5);			//Oscillator 1 amplitude value is initialized to 0.5 dB
+	waveSlider.setValue(0);					//Oscillator 1 waveform is set to sin-wave
+	frequencySlider.setValue(0);			//Oscillator 1 detune is set to 0 Hz
+	filterFrequencySlider.setValue(20000);	//Filter cutoff frequency is set to 20 kHz
 
-	amplitudeSlider2.setValue(0);
-	waveSlider2.setValue(0);
-	frequencySlider2.setValue(0);
+	amplitudeSlider2.setValue(0);			//Oscillator 2 amplitude is initialized to 0 db
+	waveSlider2.setValue(0);				//Oscillator 2 waveform is set to sin-wave
+	frequencySlider2.setValue(0);			//Oscillator 2 detune is set to 0 Hz
 
-	lfoAmplitudeSlider.setValue(0.5);
+	lfoAmplitudeSlider.setValue(0.5);		//LFO ampltidue is set to 0.5 dB
 
-	attackSlider.setValue(0.5);
-	decaySlider.setValue(0.5);
-	sustainSlider.setValue(0.8);
-	releaseSlider.setValue(0.5);
+	/*ADSR sliders positions are set*/
+	attackSlider.setValue(0.5);				
+	decaySlider.setValue(0.5);				
+	sustainSlider.setValue(0.8);			
+	releaseSlider.setValue(0.5);		
 
-	subSlider.setValue(0.5);
+	subSlider.setValue(0);					//Suboscillator amplitude is set to 0
 	
-	level = amplitudeSlider.getValue();
-	osc1.setSampleRate(sampleRate);
+	level = amplitudeSlider.getValue();		//Set level coeffisient
+
+	/*Set samplerates*/
+	osc1.setSampleRate(sampleRate);			
 	osc2.setSampleRate(sampleRate);
 	lfo.setSampleRate(sampleRate);
 	sub.setSampleRate(sampleRate);
@@ -81,11 +87,11 @@ void MainComponent::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFil
 	}
 	for (auto sample = 0; sample < bufferToFill.numSamples; ++sample)
 		{
-		ADSRCof = ADSR.Process();
-		currentSample = level * ADSRCof * osc1.returnSample() +		//Oscillator 1
-						level2 * ADSRCof * osc2.returnSample() +	//Oscillator 2
-						levelSub*ADSRCof*sub.returnSample() +		//Sub-oscillator
-						levelNoise*ADSRCof*((static_cast <float> (rand()) / static_cast <float> (RAND_MAX))-0.5);	//Noise
+		ADSRCof = ADSR.Process(); 
+		currentSample = ADSRCof*(level * osc1.returnSample() +		//Oscillator 1
+						level2 *  osc2.returnSample() +	//Oscillator 2
+						levelSub*sub.returnSample() +		//Sub-oscillator
+			levelNoise * ((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) - 0.5));	//Noise
 		currentSample = filter.process(currentSample);
 		leftBuffer[sample] = currentSample;
 		rightBuffer[sample] = currentSample;
@@ -100,50 +106,57 @@ void MainComponent::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFil
 
 void MainComponent::updateDetune()
 {
-
+	/*Update oscillator 1 detune*/
 	osc1.updateDetune((double)frequencySlider.getValue());
 	
 }
 
 void MainComponent::updateAmplitude()
 {
+	/*Update oscillator 1 amplitude*/
 	level = amplitudeSlider.getValue();
 }
 
 void MainComponent::updateWaveform()
 {
+	/*Change waveform of oscillator 1*/
 	osc1.updateWaveState(waveSlider.getValue());
 }
 
 void MainComponent::updateDetune2()
 {
-
+	/*Update oscillator 2 detune*/
 	osc2.updateDetune((double)frequencySlider2.getValue());
 
 }
 
 void MainComponent::updateAmplitude2()
 {
+	/*update oscillator 2 amplitude*/
 	level2 = amplitudeSlider2.getValue();
 }
 
 void MainComponent::updateWaveform2()
 {
+	/*Change waveform of oscillator 2*/
 	osc2.updateWaveState(waveSlider2.getValue());
 }
 
 void MainComponent::updateLfoFrequency()
 {
+	/*Update LFO frequency*/
 	lfo.updateFrequency(lfoFrequencySlider.getValue());
 }
 
 void MainComponent::updateLfoAmplitude()
 {
+	/*Update LFO amplitude*/
 	levelLfo = lfoAmplitudeSlider.getValue();
 }
 
 void MainComponent::updateLfoWaveform()
 {
+	/*Change waveform of LFO*/
 	lfo.updateWaveState(lfoWaveSlider.getValue());
 }
 /*void MainComponent::updateLFOTO1()
@@ -161,44 +174,53 @@ void MainComponent::updateLfoWaveform()
 
 void MainComponent::updateFilterFrequency()
 {
+	/*Update filter cutoff frequency*/
 	filter.setCutoff((double)filterFrequencySlider.getValue());
 }
 
 void MainComponent::updateFilterResonance()
 {
+	/*Update filter resonance*/
 	filter.setResonance((double)filterResonanceSlider.getValue());
 }
 
 void MainComponent::updateFilterMode()
 {
+	/*Update mode of filter*/
 	//filter.setMode((int)filterModeSlider.getValue());
 	filter.setMode(filterMenu.getSelectedId());
 }
 
 void MainComponent::updateA() 
 {
+	/*Update length of attack*/
 	ADSR.updateAttack(attackSlider.getValue());
 }
 void MainComponent::updateD()
 {
+	/*Update length of decay*/
 	ADSR.updateDecay(decaySlider.getValue());
 }
 void MainComponent::updateS()
 {
+	/*Update level of sustain*/
 	ADSR.updateSustain(sustainSlider.getValue());
 }
 void MainComponent::updateR()
 {
+	/*Update length of release*/
 	ADSR.updateRelease(releaseSlider.getValue());
 }
 
 void MainComponent::updateSub()
 {
+	/*Update sub oscillator amplitude*/
 	levelSub = subSlider.getValue();
 }
 
 void MainComponent::updateNoise()
 {
+	/*Update amplitude of noise*/
 	levelNoise = noiseSlider.getValue();
 }
 
@@ -210,14 +232,18 @@ void MainComponent::releaseResources()
 
 void MainComponent::paint (Graphics& g)
 {
-   /*
-   Background: 0xff333333
-   SliderBackgrond: 0xff555555
-   Oscillator: 0xff00805e
-   Lfo: 0xff808000
-   Filter: 0xff800080
-   ADSR: 0xff800000
-   */
+	/*Paint GUI*/
+
+	/*
+	Background: 0xff333333
+	SliderBackgrond: 0xff444444
+	Oscillator: 0xff00805e
+	Lfo: 0xff808000
+	Filter: 0xff800080
+	ADSR: 0xff800000
+	Sub: 0xff002080
+	Noise: 0xffd9d9d9
+	*/
 
 	g.fillAll(Colour(0xff333333));
 
@@ -249,6 +275,9 @@ void MainComponent::paint (Graphics& g)
 	decaySlider.setColour(Slider::trackColourId, Colour(0xff800000));
 	sustainSlider.setColour(Slider::trackColourId, Colour(0xff800000));
 	releaseSlider.setColour(Slider::trackColourId, Colour(0xff800000));
+
+	subSlider.setColour(Slider::rotarySliderFillColourId, Colour(0xff002080));
+	noiseSlider.setColour(Slider::rotarySliderFillColourId, Colour(0xffd9d9d9));
 		//frequencySlider.setLookAndFeel();
 	int itemMargin = 10;
 	Rectangle<int> area = getLocalBounds();
@@ -377,7 +406,7 @@ void MainComponent::initGUI()
 	addAndMakeVisible(frequencySlider);
 	frequencySlider.setSliderStyle(Slider::SliderStyle::Rotary);
 	frequencySlider.setTextBoxStyle(Slider::TextBoxBelow, false, 50, 20);
-	frequencySlider.setRange(-20, 20, 1);
+	frequencySlider.setRange(-10, 10, 1);
 	frequencySlider.setTextValueSuffix(" Hz");
 	frequencySlider.addListener(this);
 	
@@ -398,7 +427,7 @@ void MainComponent::initGUI()
 	addAndMakeVisible(frequencySlider2);
 	frequencySlider2.setSliderStyle(Slider::SliderStyle::Rotary);
 	frequencySlider2.setTextBoxStyle(Slider::TextBoxBelow, false, 50, 20);
-	frequencySlider2.setRange(-20, 20, 1);
+	frequencySlider2.setRange(-10, 10, 1);
 	frequencySlider2.setTextValueSuffix(" Hz");
 	frequencySlider2.addListener(this);
 

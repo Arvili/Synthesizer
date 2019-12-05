@@ -52,6 +52,9 @@ public:
 	void updateS();
 	void updateR();
 
+	void updateSub();
+	void updateNoise();
+
     void paint (Graphics& g) override;
 	void DrawADSR(Graphics& g);
     void resized() override;
@@ -131,6 +134,14 @@ public:
 		{
 			updateR();
 		}
+		if (slider == &subSlider)
+		{
+			updateSub();
+		}
+		if (slider == &noiseSlider)
+		{
+			updateNoise();
+		}
 	};
 
 
@@ -140,48 +151,56 @@ public:
 		{
 			osc1.updateFrequency(440);
 			osc2.updateFrequency(440);
+			sub.updateFrequency(55);
 			return true;
 		}
 		if (key.getTextCharacter() == 's')
 		{
 			osc1.updateFrequency(493.88);
 			osc2.updateFrequency(493.88);
+			sub.updateFrequency(61.74);
 			return true;
 		}
 		if (key.getTextCharacter() == 'd')
 		{
 			osc1.updateFrequency(523.25);
 			osc2.updateFrequency(523.25);
+			sub.updateFrequency(65.41);
 			return true;
 		}
 		if (key.getTextCharacter() == 'f')
 		{
 			osc1.updateFrequency(587.33);
 			osc2.updateFrequency(587.33);
+			sub.updateFrequency(73.42);
 			return true;
 		}
 		if (key.getTextCharacter() == 'g')
 		{
 			osc1.updateFrequency(659.25);
 			osc2.updateFrequency(659.25);
+			sub.updateFrequency(82.41);
 			return true;
 		}
 		if (key.getTextCharacter() == 'h')
 		{
 			osc1.updateFrequency(698.46);
 			osc2.updateFrequency(698.46);
+			sub.updateFrequency(87.31);
 			return true;
 		}
 		if (key.getTextCharacter() == 'j')
 		{
 			osc1.updateFrequency(783.99);
 			osc2.updateFrequency(783.99);
+			sub.updateFrequency(98);
 			return true;
 		}
 		if (key.getTextCharacter() == 'k')
 		{
 			osc1.updateFrequency(880.00);
 			osc2.updateFrequency(880.00);
+			sub.updateFrequency(110);
 			return true;
 		}
 	};
@@ -238,6 +257,8 @@ private:
 	Label oscillator2_label;
 	Label lfo_label;
 	Label filter_label;
+	Label sub_label;
+	Label noise_label;
 
 	Slider frequencySlider;
 	Slider amplitudeSlider;
@@ -262,6 +283,9 @@ private:
 	Slider sustainSlider;
 	Slider releaseSlider;
 
+	Slider subSlider;
+	Slider noiseSlider;
+
 	TextButton lfoTo1;
 	TextButton lfoTo2;
 
@@ -272,6 +296,9 @@ private:
 	double level2 = 0;
 	int waveState2 = 0;
 
+	double levelSub = 0;
+	double levelNoise = 0;
+
 	double levelLfo = 0;
 	int waveStateLfo = 0;
 
@@ -280,6 +307,7 @@ private:
 	Oscillator osc1;
 	Oscillator osc2;
 	Oscillator lfo;
+	Oscillator sub;
 
 	Delay delay;
 	Filter filter;
@@ -287,6 +315,7 @@ private:
 
 	bool isNotMuted = false;
 	Point<int> ADSRStart;
+	
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };

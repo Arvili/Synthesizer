@@ -9,6 +9,9 @@
 #include "MainComponent.h"
 #include <math.h>
 #include "Oscillator.h"
+#include <random>
+#include <ctime>
+#include <cstdlib>
 
 MainComponent::MainComponent()
 	: keyboardComponent(keyboardState, MidiKeyboardComponent::horizontalKeyboard)
@@ -53,12 +56,17 @@ void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRat
 	decaySlider.setValue(0.5);
 	sustainSlider.setValue(0.8);
 	releaseSlider.setValue(0.5);
+
+	subSlider.setValue(0.5);
 	
 	level = amplitudeSlider.getValue();
 	osc1.setSampleRate(sampleRate);
 	osc2.setSampleRate(sampleRate);
 	lfo.setSampleRate(sampleRate);
+	sub.setSampleRate(sampleRate);
 	ADSR.setSampleRate(sampleRate);
+
+	srand(static_cast <unsigned> (time(0)));
 
 }
 
@@ -74,7 +82,10 @@ void MainComponent::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFil
 	for (auto sample = 0; sample < bufferToFill.numSamples; ++sample)
 		{
 		ADSRCof = ADSR.Process();
-		currentSample = level * ADSRCof * osc1.returnSample() + level2 * ADSRCof * osc2.returnSample();
+		currentSample = level * ADSRCof * osc1.returnSample() +		//Oscillator 1
+						level2 * ADSRCof * osc2.returnSample() +	//Oscillator 2
+						levelSub*ADSRCof*sub.returnSample() +		//Sub-oscillator
+						levelNoise*ADSRCof*((static_cast <float> (rand()) / static_cast <float> (RAND_MAX))-0.5);	//Noise
 		currentSample = filter.process(currentSample);
 		leftBuffer[sample] = currentSample;
 		rightBuffer[sample] = currentSample;
@@ -181,6 +192,16 @@ void MainComponent::updateR()
 	ADSR.updateRelease(releaseSlider.getValue());
 }
 
+void MainComponent::updateSub()
+{
+	levelSub = subSlider.getValue();
+}
+
+void MainComponent::updateNoise()
+{
+	levelNoise = noiseSlider.getValue();
+}
+
 void MainComponent::releaseResources()
 {
    
@@ -232,36 +253,38 @@ void MainComponent::paint (Graphics& g)
 	int itemMargin = 10;
 	Rectangle<int> area = getLocalBounds();
 	Rectangle<int> controlArea = area;//.removeFromTop(area.getHeight() / 2);
-	Rectangle<int> oscillatorArea = controlArea.removeFromLeft(controlArea.getWidth() / 2);
+	Rectangle<int> oscillatorArea = controlArea.removeFromLeft(3*(controlArea.getWidth() / 7));
 	Rectangle<int> osc1Area = (oscillatorArea.removeFromTop(area.getHeight() / 3)).reduced(itemMargin);
 	Rectangle<int> osc2Area = (oscillatorArea.removeFromTop(area.getHeight() / 3)).reduced(itemMargin);
 	Rectangle<int> lfoArea = oscillatorArea.reduced(itemMargin);
 	Rectangle<int> filterArea = (controlArea.removeFromLeft(controlArea.getWidth() / 4)).reduced(itemMargin);
 	Rectangle<int> ADSRArea = controlArea.removeFromBottom(controlArea.getHeight()/2).reduced(itemMargin);
-	Rectangle<int> plotArea = controlArea.reduced(itemMargin);
-	Rectangle<int> plotPlot = plotArea.reduced(itemMargin);
+	Rectangle<int> subArea = controlArea.removeFromLeft(controlArea.getWidth()/2).reduced(itemMargin);
+	Rectangle<int> noiseArea = controlArea.reduced(itemMargin);
+	//Rectangle<int> plotPlot = plotArea.reduced(itemMargin);
 	g.setColour(Colour(0xff444444));
 	g.fillRect(osc1Area);
 	g.fillRect(osc2Area);
 	g.fillRect(lfoArea);
 	g.fillRect(filterArea);
 	g.fillRect(ADSRArea);
-	g.fillRect(plotArea);
-	g.setColour(Colour(0xff555555));
+	g.fillRect(subArea);
+	g.fillRect(noiseArea);
+	//g.setColour(Colour(0xff555555));
 	//g.fillRect(plotArea.reduced(itemMargin));
-	g.fillRect(plotPlot);
-	ADSRStart = plotPlot.getBottomLeft();
-	DrawADSR(g);
+	//g.fillRect(plotPlot);
+	//ADSRStart = plotPlot.getBottomLeft();
+	//DrawADSR(g);
 
 }
 
 void MainComponent::DrawADSR(Graphics& g) {
-	Path path;
+	/*Path path;
 	path.startNewSubPath(645,180);
-
 	path.lineTo(750, 100);
 	g.setColour(Colour(0xff800000));
 	g.fillPath(path);
+	*/
 }
   
 
@@ -271,17 +294,19 @@ void MainComponent::resized()
 
 	Rectangle<int> area = getLocalBounds();
 	Rectangle<int> controlArea = area;//area.removeFromTop(area.getHeight()/2);
-	Rectangle<int> oscillatorArea = controlArea.removeFromLeft(controlArea.getWidth() / 2);
+	Rectangle<int> oscillatorArea = controlArea.removeFromLeft(3*(controlArea.getWidth() / 7));
 	Rectangle<int> osc1Area = (oscillatorArea.removeFromTop(area.getHeight() / 3)).reduced(itemMargin);
 	
 	
 	Rectangle<int> osc2Area = (oscillatorArea.removeFromTop(area.getHeight() / 3)).reduced(itemMargin);
 	Rectangle<int> lfoArea = oscillatorArea.reduced(itemMargin);
 	Rectangle<int> lfoLabel = lfoArea.removeFromLeft(oscillatorArea.getWidth() / 6);
-	Rectangle<int> keyboardArea = area.removeFromBottom(area.getHeight() / 3);
+	//Rectangle<int> keyboardArea = area.removeFromBottom(area.getHeight() / 3);
 	Rectangle<int> filterArea = (controlArea.removeFromLeft(controlArea.getWidth() / 4)).reduced(itemMargin);
 	Rectangle<int> ADSRControlArea = controlArea.removeFromBottom(controlArea.getHeight()/2).reduced(itemMargin); //.removeFromBottom(controlArea.getHeight() / 2);
-	
+	Rectangle<int> subArea = controlArea.removeFromLeft(controlArea.getWidth() / 2).reduced(itemMargin);
+	Rectangle<int> noiseArea = controlArea.reduced(itemMargin);
+
 	oscillator1_label.setBounds(osc1Area.removeFromLeft(oscillatorArea.getWidth() / 6));
 	amplitudeSlider.setBounds(osc1Area.removeFromLeft(osc1Area.getWidth() / 3));
 	frequencySlider.setBounds(osc1Area.removeFromLeft(osc1Area.getWidth() / 2));
@@ -300,7 +325,7 @@ void MainComponent::resized()
 	lfoFrequencySlider.setBounds(lfoArea.removeFromLeft(lfoArea.getWidth() / 2));
 	lfoWaveSlider.setBounds(lfoArea);
 
-	keyboardComponent.setBounds(keyboardArea);
+	//keyboardComponent.setBounds(keyboardArea);
 
 	filter_label.setBounds(filterArea.removeFromTop(filterArea.getHeight() / 6));
 	filterFrequencySlider.setBounds(filterArea.removeFromTop(filterArea.getHeight() / 3));
@@ -318,6 +343,11 @@ void MainComponent::resized()
 	decaySlider.setBounds(ADSRControlArea.removeFromLeft(ADSRControlArea.getWidth() / 3));
 	sustainSlider.setBounds(ADSRControlArea.removeFromLeft(ADSRControlArea.getWidth() / 2));
 	releaseSlider.setBounds(ADSRControlArea.removeFromLeft(ADSRControlArea.getWidth()));
+
+	sub_label.setBounds(subArea.removeFromTop(subArea.getHeight() / 3));
+	noise_label.setBounds(noiseArea.removeFromTop(noiseArea.getHeight()/3));
+	subSlider.setBounds(subArea);
+	noiseSlider.setBounds(noiseArea);
 }
 
 void MainComponent::initGUI()
@@ -339,6 +369,10 @@ void MainComponent::initGUI()
 	lfo_label.setText("LFO", NotificationType::dontSendNotification);
 	addAndMakeVisible(filter_label);
 	filter_label.setText("Filter", NotificationType::dontSendNotification);
+	addAndMakeVisible(sub_label);
+	sub_label.setText("Sub", NotificationType::dontSendNotification);
+	addAndMakeVisible(noise_label);
+	noise_label.setText("Noise", NotificationType::dontSendNotification);
 
 	addAndMakeVisible(frequencySlider);
 	frequencySlider.setSliderStyle(Slider::SliderStyle::Rotary);
@@ -469,4 +503,18 @@ void MainComponent::initGUI()
 	releaseSlider.setTextBoxStyle(Slider::TextBoxBelow, false, 50, 20);
 	releaseSlider.setRange(0, 1, 0.01);
 	releaseSlider.addListener(this);
+
+	addAndMakeVisible(subSlider);
+	subSlider.setSliderStyle(Slider::SliderStyle::Rotary);
+	subSlider.setTextBoxStyle(Slider::TextBoxBelow, false, 50, 20);
+	subSlider.setRange(0, 1, 0.01);
+	subSlider.setTextValueSuffix(" dB");
+	subSlider.addListener(this);
+
+	addAndMakeVisible(noiseSlider);
+	noiseSlider.setSliderStyle(Slider::SliderStyle::Rotary);
+	noiseSlider.setTextBoxStyle(Slider::TextBoxBelow, false, 50, 20);
+	noiseSlider.setRange(0, 1, 0.01);
+	noiseSlider.setTextValueSuffix(" dB");
+	noiseSlider.addListener(this);
 }

@@ -218,6 +218,16 @@ void MainComponent::updateSub()
 	levelSub = subSlider.getValue();
 }
 
+void MainComponent::updateSubDetune()
+{
+	sub.updateDetune((double)frequencySlider.getValue());
+}
+
+void MainComponent::updateSubWaveform()
+{
+	sub.updateWaveState(subWaveSlider.getValue());
+}
+
 void MainComponent::updateNoise()
 {
 	/*Update amplitude of noise*/
@@ -277,6 +287,8 @@ void MainComponent::paint (Graphics& g)
 	releaseSlider.setColour(Slider::trackColourId, Colour(0xff800000));
 
 	subSlider.setColour(Slider::rotarySliderFillColourId, Colour(0xff002080));
+	subFrequencySlider.setColour(Slider::rotarySliderFillColourId, Colour(0xff002080));
+	subWaveSlider.setColour(Slider::rotarySliderFillColourId, Colour(0xff002080));
 	noiseSlider.setColour(Slider::rotarySliderFillColourId, Colour(0xffd9d9d9));
 		//frequencySlider.setLookAndFeel();
 	int itemMargin = 10;
@@ -285,11 +297,12 @@ void MainComponent::paint (Graphics& g)
 	Rectangle<int> oscillatorArea = controlArea.removeFromLeft(3*(controlArea.getWidth() / 7));
 	Rectangle<int> osc1Area = (oscillatorArea.removeFromTop(area.getHeight() / 3)).reduced(itemMargin);
 	Rectangle<int> osc2Area = (oscillatorArea.removeFromTop(area.getHeight() / 3)).reduced(itemMargin);
-	Rectangle<int> lfoArea = oscillatorArea.reduced(itemMargin);
+	Rectangle<int> subArea = oscillatorArea.reduced(itemMargin);
 	Rectangle<int> filterArea = (controlArea.removeFromLeft(controlArea.getWidth() / 4)).reduced(itemMargin);
-	Rectangle<int> ADSRArea = controlArea.removeFromBottom(controlArea.getHeight()/2).reduced(itemMargin);
-	Rectangle<int> subArea = controlArea.removeFromLeft(controlArea.getWidth()/2).reduced(itemMargin);
-	Rectangle<int> noiseArea = controlArea.reduced(itemMargin);
+	Rectangle<int> ADSRArea = controlArea.removeFromBottom(controlArea.getHeight()/3).reduced(itemMargin);
+	Rectangle<int> lfoArea = controlArea.removeFromTop(controlArea.getHeight()/2).reduced(itemMargin);
+	Rectangle<int> tweekArea = controlArea.reduced(itemMargin);
+	//Rectangle<int> noiseArea = controlArea.reduced(itemMargin);
 	//Rectangle<int> plotPlot = plotArea.reduced(itemMargin);
 	g.setColour(Colour(0xff444444));
 	g.fillRect(osc1Area);
@@ -298,7 +311,8 @@ void MainComponent::paint (Graphics& g)
 	g.fillRect(filterArea);
 	g.fillRect(ADSRArea);
 	g.fillRect(subArea);
-	g.fillRect(noiseArea);
+	g.fillRect(tweekArea);
+	//g.fillRect(noiseArea);
 	//g.setColour(Colour(0xff555555));
 	//g.fillRect(plotArea.reduced(itemMargin));
 	//g.fillRect(plotPlot);
@@ -328,13 +342,14 @@ void MainComponent::resized()
 	
 	
 	Rectangle<int> osc2Area = (oscillatorArea.removeFromTop(area.getHeight() / 3)).reduced(itemMargin);
-	Rectangle<int> lfoArea = oscillatorArea.reduced(itemMargin);
-	Rectangle<int> lfoLabel = lfoArea.removeFromLeft(oscillatorArea.getWidth() / 6);
+	Rectangle<int> subArea = oscillatorArea.reduced(itemMargin);
+	Rectangle<int> subLabel = subArea.removeFromLeft(oscillatorArea.getWidth() / 6);
 	//Rectangle<int> keyboardArea = area.removeFromBottom(area.getHeight() / 3);
 	Rectangle<int> filterArea = (controlArea.removeFromLeft(controlArea.getWidth() / 4)).reduced(itemMargin);
-	Rectangle<int> ADSRControlArea = controlArea.removeFromBottom(controlArea.getHeight()/2).reduced(itemMargin); //.removeFromBottom(controlArea.getHeight() / 2);
-	Rectangle<int> subArea = controlArea.removeFromLeft(controlArea.getWidth() / 2).reduced(itemMargin);
-	Rectangle<int> noiseArea = controlArea.reduced(itemMargin);
+	Rectangle<int> ADSRControlArea = controlArea.removeFromBottom(controlArea.getHeight()/3).reduced(itemMargin); //.removeFromBottom(controlArea.getHeight() / 2);
+	Rectangle<int> lfoArea = controlArea.removeFromTop(controlArea.getHeight() / 2).reduced(itemMargin);
+	Rectangle<int> lfoLabel = lfoArea.removeFromLeft(oscillatorArea.getWidth() / 6);
+	Rectangle<int> tweekArea = controlArea.reduced(itemMargin);
 
 	oscillator1_label.setBounds(osc1Area.removeFromLeft(oscillatorArea.getWidth() / 6));
 	amplitudeSlider.setBounds(osc1Area.removeFromLeft(osc1Area.getWidth() / 3));
@@ -373,10 +388,12 @@ void MainComponent::resized()
 	sustainSlider.setBounds(ADSRControlArea.removeFromLeft(ADSRControlArea.getWidth() / 2));
 	releaseSlider.setBounds(ADSRControlArea.removeFromLeft(ADSRControlArea.getWidth()));
 
-	sub_label.setBounds(subArea.removeFromTop(subArea.getHeight() / 3));
-	noise_label.setBounds(noiseArea.removeFromTop(noiseArea.getHeight()/3));
-	subSlider.setBounds(subArea);
-	noiseSlider.setBounds(noiseArea);
+	sub_label.setBounds(subLabel);
+	subSlider.setBounds(subArea.removeFromLeft(subArea.getWidth()/3));
+	subFrequencySlider.setBounds(subArea.removeFromLeft(subArea.getWidth() / 2));
+	subWaveSlider.setBounds(subArea.removeFromLeft(subArea.getWidth()));
+	noise_label.setBounds(tweekArea.removeFromLeft(tweekArea.getWidth() / 9));
+	noiseSlider.setBounds(tweekArea.removeFromLeft(tweekArea.getWidth()/4));
 }
 
 void MainComponent::initGUI()
@@ -539,6 +556,19 @@ void MainComponent::initGUI()
 	subSlider.setRange(0, 1, 0.01);
 	subSlider.setTextValueSuffix(" dB");
 	subSlider.addListener(this);
+
+	addAndMakeVisible(subWaveSlider);
+	subWaveSlider.setSliderStyle(Slider::SliderStyle::Rotary);
+	subWaveSlider.setTextBoxStyle(Slider::TextBoxBelow, false, 50, 20);
+	subWaveSlider.setRange(0, 3, 1);
+	subWaveSlider.addListener(this);
+
+	addAndMakeVisible(subFrequencySlider);
+	subFrequencySlider.setSliderStyle(Slider::SliderStyle::Rotary);
+	subFrequencySlider.setTextBoxStyle(Slider::TextBoxBelow, false, 50, 20);
+	subFrequencySlider.setRange(-10, 10, 1);
+	subFrequencySlider.setTextValueSuffix(" Hz");
+	subFrequencySlider.addListener(this);
 
 	addAndMakeVisible(noiseSlider);
 	noiseSlider.setSliderStyle(Slider::SliderStyle::Rotary);

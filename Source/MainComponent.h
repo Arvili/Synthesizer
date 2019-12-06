@@ -53,6 +53,8 @@ public:
 	void updateR();
 
 	void updateSub();
+	void updateSubDetune();
+	void updateSubWaveform();
 	void updateNoise();
 
     void paint (Graphics& g) override;
@@ -141,6 +143,14 @@ public:
 		if (slider == &noiseSlider)
 		{
 			updateNoise();
+		}
+		if (slider == &subFrequencySlider)
+		{
+			updateSubDetune();
+		}
+		if (slider == &subWaveSlider)
+		{
+			updateSubWaveform();
 		}
 	};
 
@@ -284,6 +294,9 @@ private:
 	Slider releaseSlider;
 
 	Slider subSlider;
+	Slider subFrequencySlider;
+	Slider subWaveSlider;
+
 	Slider noiseSlider;
 
 	TextButton lfoTo1;

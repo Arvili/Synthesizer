@@ -269,6 +269,7 @@ private:
 	Label filter_label;
 	Label sub_label;
 	Label noise_label;
+	Label vibrato_label;
 
 	Slider frequencySlider;
 	Slider amplitudeSlider;
@@ -298,6 +299,7 @@ private:
 	Slider subWaveSlider;
 
 	Slider noiseSlider;
+	Slider vibratoSlider;
 
 	TextButton lfoTo1;
 	TextButton lfoTo2;
@@ -316,6 +318,7 @@ private:
 	int waveStateLfo = 0;
 
 	double ADSRCof = 0;
+	double filterCutoff;
 
 	Oscillator osc1;
 	Oscillator osc2;

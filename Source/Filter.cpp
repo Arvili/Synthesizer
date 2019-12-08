@@ -5,7 +5,7 @@
 
 Filter::Filter()
 {
-	cutoff = 0.5;
+	cutoff = 0.99;
 	resonance = 0;
 	mode = 1;
 	buf0 = 0;

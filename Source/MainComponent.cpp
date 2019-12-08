@@ -47,12 +47,14 @@ void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRat
 	amplitudeSlider.setValue(0.5);			//Oscillator 1 amplitude value is initialized to 0.5 dB
 	waveSlider.setValue(0);					//Oscillator 1 waveform is set to sin-wave
 	frequencySlider.setValue(0);			//Oscillator 1 detune is set to 0 Hz
-	filterFrequencySlider.setValue(20000);	//Filter cutoff frequency is set to 20 kHz
+	filterFrequencySlider.setValue(0.99);	//Filter cutoff frequency is set to 20 kHz
+	filterCutoff = 0.99;
 
 	amplitudeSlider2.setValue(0);			//Oscillator 2 amplitude is initialized to 0 db
 	waveSlider2.setValue(0);				//Oscillator 2 waveform is set to sin-wave
 	frequencySlider2.setValue(0);			//Oscillator 2 detune is set to 0 Hz
 
+	lfo.updateFrequency(lfoFrequencySlider.getValue());
 	lfoAmplitudeSlider.setValue(0.5);		//LFO ampltidue is set to 0.5 dB
 
 	/*ADSR sliders positions are set*/
@@ -80,10 +82,10 @@ void MainComponent::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFil
 {
 	auto* leftBuffer = bufferToFill.buffer->getWritePointer(0, bufferToFill.startSample);
 	auto* rightBuffer = bufferToFill.buffer->getWritePointer(1, bufferToFill.startSample);
-	float currentSample = 0;
+	double currentSample = 0;
 	if (lfoMenu.getSelectedId() == 4)
 	{
-		filterFrequencySlider.setValue(levelLfo * lfo.returnSample());
+		filterFrequencySlider.setValue(abs(levelLfo * lfo.returnSample()));
 	}
 	for (auto sample = 0; sample < bufferToFill.numSamples; ++sample)
 		{
@@ -120,7 +122,7 @@ void MainComponent::updateAmplitude()
 void MainComponent::updateWaveform()
 {
 	/*Change waveform of oscillator 1*/
-	osc1.updateWaveState(waveSlider.getValue());
+	osc1.updateWaveState((int)waveSlider.getValue());
 }
 
 void MainComponent::updateDetune2()
@@ -176,6 +178,7 @@ void MainComponent::updateFilterFrequency()
 {
 	/*Update filter cutoff frequency*/
 	filter.setCutoff((double)filterFrequencySlider.getValue());
+	filterCutoff = (double)filterFrequencySlider.getValue();
 }
 
 void MainComponent::updateFilterResonance()
@@ -576,4 +579,11 @@ void MainComponent::initGUI()
 	noiseSlider.setRange(0, 1, 0.01);
 	noiseSlider.setTextValueSuffix(" dB");
 	noiseSlider.addListener(this);
+
+	addAndMakeVisible(vibratoSlider);
+	vibratoSlider.setSliderStyle(Slider::SliderStyle::Rotary);
+	vibratoSlider.setTextBoxStyle(Slider::TextBoxBelow, false, 50, 20);
+	vibratoSlider.setRange(0, 1, 0.01);
+	vibratoSlider.setTextValueSuffix(" dB");
+	vibratoSlider.addListener(this);
 }

@@ -159,6 +159,8 @@ public:
 	{
 		if (key.getTextCharacter() == 'a')
 		{
+			osc1Freq = 440;
+			osc2Freq = 440;
 			osc1.updateFrequency(440);
 			osc2.updateFrequency(440);
 			sub.updateFrequency(55);
@@ -166,6 +168,8 @@ public:
 		}
 		if (key.getTextCharacter() == 's')
 		{
+			osc1Freq = 493.88;
+			osc2Freq = 493.88;
 			osc1.updateFrequency(493.88);
 			osc2.updateFrequency(493.88);
 			sub.updateFrequency(61.74);
@@ -173,6 +177,8 @@ public:
 		}
 		if (key.getTextCharacter() == 'd')
 		{
+			osc1Freq = 523.25;
+			osc2Freq = 523.25;
 			osc1.updateFrequency(523.25);
 			osc2.updateFrequency(523.25);
 			sub.updateFrequency(65.41);
@@ -180,6 +186,8 @@ public:
 		}
 		if (key.getTextCharacter() == 'f')
 		{
+			osc1Freq = 587.33;
+			osc2Freq = 587.33;
 			osc1.updateFrequency(587.33);
 			osc2.updateFrequency(587.33);
 			sub.updateFrequency(73.42);
@@ -187,6 +195,8 @@ public:
 		}
 		if (key.getTextCharacter() == 'g')
 		{
+			osc1Freq = 659.25;
+			osc2Freq = 659.25;
 			osc1.updateFrequency(659.25);
 			osc2.updateFrequency(659.25);
 			sub.updateFrequency(82.41);
@@ -194,6 +204,8 @@ public:
 		}
 		if (key.getTextCharacter() == 'h')
 		{
+			osc1Freq = 698.46;
+			osc2Freq = 698.46;
 			osc1.updateFrequency(698.46);
 			osc2.updateFrequency(698.46);
 			sub.updateFrequency(87.31);
@@ -201,6 +213,8 @@ public:
 		}
 		if (key.getTextCharacter() == 'j')
 		{
+			osc1Freq = 783.99;
+			osc2Freq = 783.99;
 			osc1.updateFrequency(783.99);
 			osc2.updateFrequency(783.99);
 			sub.updateFrequency(98);
@@ -208,6 +222,8 @@ public:
 		}
 		if (key.getTextCharacter() == 'k')
 		{
+			osc1Freq = 880;
+			osc2Freq = 880;
 			osc1.updateFrequency(880.00);
 			osc2.updateFrequency(880.00);
 			sub.updateFrequency(110);
@@ -331,6 +347,9 @@ private:
 
 	bool isNotMuted = false;
 	Point<int> ADSRStart;
+
+	double osc1Freq;
+	double osc2Freq;
 	
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)

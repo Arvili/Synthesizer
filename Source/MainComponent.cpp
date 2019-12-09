@@ -83,12 +83,24 @@ void MainComponent::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFil
 	auto* leftBuffer = bufferToFill.buffer->getWritePointer(0, bufferToFill.startSample);
 	auto* rightBuffer = bufferToFill.buffer->getWritePointer(1, bufferToFill.startSample);
 	double currentSample = 0;
-	if (lfoMenu.getSelectedId() == 4)
-	{
-		filterFrequencySlider.setValue(abs(levelLfo * lfo.returnSample()));
-	}
+	double lfoSample = 0;
+	
 	for (auto sample = 0; sample < bufferToFill.numSamples; ++sample)
 		{
+		lfoSample = levelLfo * lfo.returnSample();
+		switch (lfoMenu.getSelectedId()) {
+		case 1:
+			break;
+		case 2:
+			osc1.updateFrequency(osc1Freq + 10*lfoSample);
+			break;
+		case 3:
+			osc2.updateFrequency(osc2Freq + 10*lfoSample);
+			break;
+		case 4:
+			//filterFrequencySlider.setValue(abs(levelLfo * lfo.returnSample()));
+			filter.setCutoff(filterCutoff + lfoSample);
+		}
 		ADSRCof = ADSR.Process(); 
 		currentSample = ADSRCof*(level * osc1.returnSample() +		//Oscillator 1
 						level2 *  osc2.returnSample() +	//Oscillator 2

@@ -13,6 +13,7 @@
 #include <ctime>
 #include <cstdlib>
 
+
 MainComponent::MainComponent()
 	: keyboardComponent(keyboardState, MidiKeyboardComponent::horizontalKeyboard)
 {
@@ -64,7 +65,8 @@ void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRat
 	releaseSlider.setValue(0.5);		
 
 	subSlider.setValue(0);					//Suboscillator amplitude is set to 0
-	
+	panSlider.setValue(0);
+
 	level = amplitudeSlider.getValue();		//Set level coeffisient
 
 	/*Set samplerates*/
@@ -74,46 +76,52 @@ void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRat
 	sub.setSampleRate(sampleRate);
 	ADSR.setSampleRate(sampleRate);
 
-	srand(static_cast <unsigned> (time(0)));
+	srand(static_cast <unsigned> (time(0)));		//Initialize srand with random variable
 
 }
 
 void MainComponent::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFill)
 {
-	auto* leftBuffer = bufferToFill.buffer->getWritePointer(0, bufferToFill.startSample);
+	auto* leftBuffer = bufferToFill.buffer->getWritePointer(0, bufferToFill.startSample);	//Audio buffers to sounddevice
 	auto* rightBuffer = bufferToFill.buffer->getWritePointer(1, bufferToFill.startSample);
-	double currentSample = 0;
-	double lfoSample = 0;
-	
+	double currentSample = 0;	//Init current sample as 0
+	double lfoSample = 0;		//Lfo controls through its own samples
+
+	/*Iterate over the size of audiobuffers*/
 	for (auto sample = 0; sample < bufferToFill.numSamples; ++sample)
 		{
-		lfoSample = levelLfo * lfo.returnSample();
-		switch (lfoMenu.getSelectedId()) {
+		lfoSample = levelLfo * lfo.returnSample();	//Lfo sample, differents between -1...1
+		switch (lfoMenu.getSelectedId()) {	//switch/case between features to affect with lfo
 		case 1:
 			break;
 		case 2:
-			osc1.updateFrequency(osc1Freq + 10*lfoSample);
+			osc1.updateFrequency(osc1Freq + 10*lfoSample);	//Lfo modulates the frequency of osc1 (vibrato)
 			break;
 		case 3:
-			osc2.updateFrequency(osc2Freq + 10*lfoSample);
+			osc2.updateFrequency(osc2Freq + 10*lfoSample); //Lfo modulates the frequency of osc2 (vibrato)
 			break;
 		case 4:
 			//filterFrequencySlider.setValue(abs(levelLfo * lfo.returnSample()));
-			filter.setCutoff(filterCutoff + lfoSample);
+			filter.setCutoff(filterCutoff + lfoSample);	//Lfo modulates filter cutoff
 		}
-		ADSRCof = ADSR.Process(); 
+
+		ADSRCof = ADSR.Process();	//ADSR coeffisient, affects to overal amplitude
+
+		/*Calculate current sample*/
 		currentSample = ADSRCof*(level * osc1.returnSample() +		//Oscillator 1
 						level2 *  osc2.returnSample() +	//Oscillator 2
 						levelSub*sub.returnSample() +		//Sub-oscillator
 			levelNoise * ((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) - 0.5));	//Noise
-		currentSample = filter.process(currentSample);
-		leftBuffer[sample] = currentSample;
-		rightBuffer[sample] = currentSample;
+
+		currentSample = filter.process(currentSample);	//Filter sample
+		leftBuffer[sample] = lPan*currentSample;		//Fill audiobuffers with samples
+		rightBuffer[sample] = rPan*currentSample;
 	}
-	if (delay.isOn() == true)
+	/*if (delay.ison() == true)
 	{
-		delay.addDelay(rightBuffer, leftBuffer);
+		delay.adddelay(rightbuffer, leftbuffer);
 	}
+	*/
 	
 }
 
@@ -173,18 +181,7 @@ void MainComponent::updateLfoWaveform()
 	/*Change waveform of LFO*/
 	lfo.updateWaveState(lfoWaveSlider.getValue());
 }
-/*void MainComponent::updateLFOTO1()
-{
-	if (lfoTo1.getToggleState() == true)
-	{
-		lfoTo1.setToggleState(false, NotificationType::dontSendNotification);
-	}
-	else
-	{
 
-		lfoTo1.setToggleState(true, NotificationType::dontSendNotification);
-	}
-}*/
 
 void MainComponent::updateFilterFrequency()
 {
@@ -235,11 +232,13 @@ void MainComponent::updateSub()
 
 void MainComponent::updateSubDetune()
 {
+	/*Update sub detune*/
 	sub.updateDetune((double)frequencySlider.getValue());
 }
 
 void MainComponent::updateSubWaveform()
 {
+	/*Update sub waveform*/
 	sub.updateWaveState(subWaveSlider.getValue());
 }
 
@@ -247,6 +246,22 @@ void MainComponent::updateNoise()
 {
 	/*Update amplitude of noise*/
 	levelNoise = noiseSlider.getValue();
+}
+
+void MainComponent::updatePanning()
+{
+	/*Pan to left or rigth*/
+	double panning = panSlider.getValue();	//Value of pan
+	if (panning >= 0)
+	{
+		lPan = 1-panning;
+		rPan = 1;
+	}
+	else
+	{
+		lPan = 1;
+		rPan = 1-abs(panning);
+	}
 }
 
 void MainComponent::releaseResources()
@@ -308,7 +323,8 @@ void MainComponent::paint (Graphics& g)
 		//frequencySlider.setLookAndFeel();
 	int itemMargin = 10;
 	Rectangle<int> area = getLocalBounds();
-	Rectangle<int> controlArea = area;//.removeFromTop(area.getHeight() / 2);
+	Rectangle<int> control = area.removeFromTop(area.getHeight()/4).reduced(itemMargin);
+	Rectangle<int> controlArea = area;
 	Rectangle<int> oscillatorArea = controlArea.removeFromLeft(3*(controlArea.getWidth() / 7));
 	Rectangle<int> osc1Area = (oscillatorArea.removeFromTop(area.getHeight() / 3)).reduced(itemMargin);
 	Rectangle<int> osc2Area = (oscillatorArea.removeFromTop(area.getHeight() / 3)).reduced(itemMargin);
@@ -320,6 +336,7 @@ void MainComponent::paint (Graphics& g)
 	//Rectangle<int> noiseArea = controlArea.reduced(itemMargin);
 	//Rectangle<int> plotPlot = plotArea.reduced(itemMargin);
 	g.setColour(Colour(0xff444444));
+	g.fillRect(control);
 	g.fillRect(osc1Area);
 	g.fillRect(osc2Area);
 	g.fillRect(lfoArea);
@@ -351,7 +368,10 @@ void MainComponent::resized()
 	int itemMargin = 15;
 
 	Rectangle<int> area = getLocalBounds();
-	Rectangle<int> controlArea = area;//area.removeFromTop(area.getHeight()/2);
+	Rectangle<int> control = area.removeFromTop(area.getHeight() / 4).reduced(itemMargin);
+	Rectangle<int> panArea = control.removeFromRight(control.getWidth() / 7);
+
+	Rectangle<int> controlArea = area;
 	Rectangle<int> oscillatorArea = controlArea.removeFromLeft(3*(controlArea.getWidth() / 7));
 	Rectangle<int> osc1Area = (oscillatorArea.removeFromTop(area.getHeight() / 3)).reduced(itemMargin);
 	
@@ -409,12 +429,19 @@ void MainComponent::resized()
 	subWaveSlider.setBounds(subArea.removeFromLeft(subArea.getWidth()));
 	noise_label.setBounds(tweekArea.removeFromLeft(tweekArea.getWidth() / 9));
 	noiseSlider.setBounds(tweekArea.removeFromLeft(tweekArea.getWidth()/4));
+
+	pan_label.setBounds(panArea.removeFromLeft(panArea.getHeight()/4));
+	panSlider.setBounds(panArea);
+
 }
 
 void MainComponent::initGUI()
 {
 	
-	setWantsKeyboardFocus(true);
+	/*Initialize and setup every slider and label*/
+
+	/*Keyboud focus and listener to listen keyboard commands*/
+	setWantsKeyboardFocus(true);	
 	addKeyListener(this);
 	grabKeyboardFocus();
 	
@@ -422,6 +449,7 @@ void MainComponent::initGUI()
 	//addAndMakeVisible(keyboardComponent);
 	//keyboardState.addListener(this);
 
+	/*Init labels*/
 	addAndMakeVisible(oscillator1_label);
 	oscillator1_label.setText("Osc I", NotificationType::dontSendNotification);
 	addAndMakeVisible(oscillator2_label);
@@ -434,13 +462,18 @@ void MainComponent::initGUI()
 	sub_label.setText("Sub", NotificationType::dontSendNotification);
 	addAndMakeVisible(noise_label);
 	noise_label.setText("Noise", NotificationType::dontSendNotification);
+	addAndMakeVisible(pan_label);
+	pan_label.setText("Pan", NotificationType::dontSendNotification);
+	
 
-	addAndMakeVisible(frequencySlider);
-	frequencySlider.setSliderStyle(Slider::SliderStyle::Rotary);
-	frequencySlider.setTextBoxStyle(Slider::TextBoxBelow, false, 50, 20);
-	frequencySlider.setRange(-10, 10, 1);
-	frequencySlider.setTextValueSuffix(" Hz");
-	frequencySlider.addListener(this);
+	/*Initi sliders, for every slider almost identical setup*/
+
+	addAndMakeVisible(frequencySlider);										//add and make visible on GUI
+	frequencySlider.setSliderStyle(Slider::SliderStyle::Rotary);			//Set slider style, usually rotary, in adsr vertical
+	frequencySlider.setTextBoxStyle(Slider::TextBoxBelow, false, 50, 20);	//Set text box below the slider
+	frequencySlider.setRange(-10, 10, 1);									//Set range of slider
+	frequencySlider.setTextValueSuffix(" Hz");								//Set suffix of slider values
+	frequencySlider.addListener(this);										//Add listener to listen changes of slider values
 	
 
 	addAndMakeVisible(amplitudeSlider);
@@ -544,25 +577,25 @@ void MainComponent::initGUI()
 	addAndMakeVisible(attackSlider);
 	attackSlider.setSliderStyle(Slider::SliderStyle::LinearVertical);
 	attackSlider.setTextBoxStyle(Slider::TextBoxBelow, false, 50, 20);
-	attackSlider.setRange(0, 1, 0.01);
+	attackSlider.setRange(0.01, 1, 0.01);
 	attackSlider.addListener(this);
 
 	addAndMakeVisible(decaySlider);
 	decaySlider.setSliderStyle(Slider::SliderStyle::LinearVertical);
 	decaySlider.setTextBoxStyle(Slider::TextBoxBelow, false, 50, 20);
-	decaySlider.setRange(0, 1, 0.01);
+	decaySlider.setRange(0.01, 1, 0.01);
 	decaySlider.addListener(this);
 
 	addAndMakeVisible(sustainSlider);
 	sustainSlider.setSliderStyle(Slider::SliderStyle::LinearVertical);
 	sustainSlider.setTextBoxStyle(Slider::TextBoxBelow, false, 50, 20);
-	sustainSlider.setRange(0, 1, 0.01);
+	sustainSlider.setRange(0.01, 1, 0.01);
 	sustainSlider.addListener(this);
 
 	addAndMakeVisible(releaseSlider);
 	releaseSlider.setSliderStyle(Slider::SliderStyle::LinearVertical);
 	releaseSlider.setTextBoxStyle(Slider::TextBoxBelow, false, 50, 20);
-	releaseSlider.setRange(0, 1, 0.01);
+	releaseSlider.setRange(0.01, 1, 0.01);
 	releaseSlider.addListener(this);
 
 	addAndMakeVisible(subSlider);
@@ -592,10 +625,10 @@ void MainComponent::initGUI()
 	noiseSlider.setTextValueSuffix(" dB");
 	noiseSlider.addListener(this);
 
-	addAndMakeVisible(vibratoSlider);
-	vibratoSlider.setSliderStyle(Slider::SliderStyle::Rotary);
-	vibratoSlider.setTextBoxStyle(Slider::TextBoxBelow, false, 50, 20);
-	vibratoSlider.setRange(0, 1, 0.01);
-	vibratoSlider.setTextValueSuffix(" dB");
-	vibratoSlider.addListener(this);
+	addAndMakeVisible(panSlider);
+	panSlider.setSliderStyle(Slider::SliderStyle::Rotary);
+	panSlider.setTextBoxStyle(Slider::TextBoxBelow, false, 50, 20);
+	panSlider.setRange(-1, 1, 0.01);
+	//panSlider.setTextValueSuffix();
+	panSlider.addListener(this);
 }

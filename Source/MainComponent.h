@@ -56,6 +56,7 @@ public:
 	void updateSubDetune();
 	void updateSubWaveform();
 	void updateNoise();
+	void updatePanning();
 
     void paint (Graphics& g) override;
 	void DrawADSR(Graphics& g);
@@ -151,6 +152,10 @@ public:
 		if (slider == &subWaveSlider)
 		{
 			updateSubWaveform();
+		}
+		if (slider == &panSlider)
+		{
+			updatePanning();
 		}
 	};
 
@@ -285,7 +290,7 @@ private:
 	Label filter_label;
 	Label sub_label;
 	Label noise_label;
-	Label vibrato_label;
+	Label pan_label;
 
 	Slider frequencySlider;
 	Slider amplitudeSlider;
@@ -315,7 +320,7 @@ private:
 	Slider subWaveSlider;
 
 	Slider noiseSlider;
-	Slider vibratoSlider;
+	Slider panSlider;
 
 	TextButton lfoTo1;
 	TextButton lfoTo2;
@@ -335,6 +340,9 @@ private:
 
 	double ADSRCof = 0;
 	double filterCutoff;
+
+	double rPan = 1;
+	double lPan = 1;
 
 	Oscillator osc1;
 	Oscillator osc2;

@@ -54,7 +54,7 @@ private:
 	double releaseCof;
 	double currentSampleRate = 0;
 	double maxVal = 1;
-	double minVal = 0.000001;
+	double minVal = 0.0001;
 	double multiplier;
 	
 

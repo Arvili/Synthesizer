@@ -85,7 +85,7 @@ double ADSr::calculateCof(double start, double target, double length)
 
 void ADSr::updateAttack(double aLength)
 {
-	attackLength = (minVal+aLength)*2*currentSampleRate;
+	attackLength = (minVal+aLength)*10*currentSampleRate;
 	//attackCof = 1 / attackLength;
 	attackCof = calculateCof(minVal, maxVal, attackLength);
 	std::cout << attackCof << std::endl;

@@ -10,7 +10,7 @@
 MainComponent::MainComponent()
 	: keyboardComponent(keyboardState, MidiKeyboardComponent::horizontalKeyboard)
 {
-	setSize(1000, 400);		//Size of window
+	setSize(1000, 500);		//Size of window
 	initGUI();				//Initialize GUI
 
 	/*auto midiInputs = MidiInput::getDevices();
@@ -36,7 +36,7 @@ MainComponent::~MainComponent()
 
 void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRate)
 {
-	/*Called before any samples are derived to device, usually when the program starts*/
+	/*Called before any samples are delivered to device, usually when the program starts*/
 
 	amplitudeSlider.setValue(0.5);			//Oscillator 1 amplitude value is initialized to 0.5 dB
 	waveSlider.setValue(0);					//Oscillator 1 waveform is set to sin-wave
@@ -362,7 +362,7 @@ void MainComponent::resized()
 
 	Rectangle<int> area = getLocalBounds();
 	Rectangle<int> control = area.removeFromTop(area.getHeight() / 4).reduced(itemMargin);
-	Rectangle<int> panArea = control.removeFromRight(control.getWidth() / 7);
+	Rectangle<int> panArea = control.removeFromRight(control.getWidth() / 5);
 
 	Rectangle<int> controlArea = area;
 	Rectangle<int> oscillatorArea = controlArea.removeFromLeft(3*(controlArea.getWidth() / 7));
@@ -423,7 +423,7 @@ void MainComponent::resized()
 	noise_label.setBounds(tweekArea.removeFromLeft(tweekArea.getWidth() / 9));
 	noiseSlider.setBounds(tweekArea.removeFromLeft(tweekArea.getWidth()/4));
 
-	pan_label.setBounds(panArea.removeFromLeft(panArea.getHeight()/4));
+	pan_label.setBounds(panArea.removeFromLeft(panArea.getHeight()/3));
 	panSlider.setBounds(panArea);
 
 }
@@ -455,8 +455,8 @@ void MainComponent::initGUI()
 	sub_label.setText("Sub", NotificationType::dontSendNotification);
 	addAndMakeVisible(noise_label);
 	noise_label.setText("Noise", NotificationType::dontSendNotification);
-	addAndMakeVisible(pan_label);
-	pan_label.setText("Pan", NotificationType::dontSendNotification);
+	//addAndMakeVisible(pan_label);
+	//pan_label.setText("Pan L/R", NotificationType::dontSendNotification);
 	
 
 	/*Initi sliders, for every slider almost identical setup*/

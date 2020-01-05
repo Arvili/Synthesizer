@@ -9,5 +9,6 @@ Synthesizer with:
   * Filter with lowpass, highpass and bandpass modes. Adjustable cutoff and resonance
   * ADSR
   * Noise-generator
+  * Pan to left or right
     
 ![alt text](https://github.com/Arvili/Synthesizer/blob/master/Synth_GUI.PNG "Synthesizer")  

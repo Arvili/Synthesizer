@@ -1,24 +1,15 @@
-/*
-  ==============================================================================
 
-    ADSR.cpp
-    Created: 9 Nov 2019 2:10:39pm
-    Author:  arvil
-
-  ==============================================================================
-*/
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "ADSR.h"
 #include<math.h>
 #include <iostream>
 
-//==============================================================================
+
 
 ADSr::ADSr()
 {
-    // In your constructor, you should add any child components, and
-    // initialise any special settings that your component needs.
+
 	output = 0;
 	env_stage = env_off;
 	attackLength = 1;

@@ -21,7 +21,7 @@ Filter::~Filter()
 
 double Filter::process(double inputValue)
 {
-	/* two first order filters in series; using commented variables adds two more filters in series*/
+	/* two first order filters in series, using commented variables adds two more filters in series*/
 
 	buf0 += cutoff * (inputValue - buf0 + feedback * (buf0 - buf1));
 	buf1 += cutoff * (buf0 - buf1);

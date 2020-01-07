@@ -1,14 +1,15 @@
 # Synthesizer, in progress
 
-Synthesizer with:
+**Features**:
   * Two oscillator, sub oscillator and LFO
     * 4 different waveforms (sin, triangle, sawtooth and square)
     * Detune
-    * Amplitude
-  * LFO can be assigned to filter cutoff or oscillators' detune
-  * Filter with lowpass, highpass and bandpass modes. Adjustable cutoff and resonance
+  * Filter with lowpass, highpass and bandpass modes
+  * Adjustable cutoff and resonance
   * ADSR
   * Noise-generator
-  * Pan to left or right
+  
+**Depedencies**: 
+  * JUCE
     
 ![alt text](https://github.com/Arvili/Synthesizer/blob/master/Synth_GUI.PNG "Synthesizer")  

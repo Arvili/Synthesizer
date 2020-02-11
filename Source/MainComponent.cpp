@@ -52,10 +52,10 @@ void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRat
 	lfoAmplitudeSlider.setValue(0.5);		//LFO ampltidue is set to 0.5 dB
 
 	/*ADSR sliders positions are set*/
-	attackSlider.setValue(0.5);				
-	decaySlider.setValue(0.5);				
-	sustainSlider.setValue(0.8);			
-	releaseSlider.setValue(0.5);		
+	attackSlider.setValue(0.01);				
+	decaySlider.setValue(1);				
+	sustainSlider.setValue(1);			
+	releaseSlider.setValue(0.01);		
 
 	subSlider.setValue(0);					//Suboscillator amplitude is set to 0
 	panSlider.setValue(0);

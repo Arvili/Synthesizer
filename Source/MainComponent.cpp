@@ -329,14 +329,14 @@ void MainComponent::paint (Graphics& g)
 	//Rectangle<int> noiseArea = controlArea.reduced(itemMargin);
 	//Rectangle<int> plotPlot = plotArea.reduced(itemMargin);
 	g.setColour(Colour(0xff444444));
-	g.fillRect(control);
-	g.fillRect(osc1Area);
-	g.fillRect(osc2Area);
-	g.fillRect(lfoArea);
-	g.fillRect(filterArea);
-	g.fillRect(ADSRArea);
-	g.fillRect(subArea);
-	g.fillRect(tweekArea);
+	g.fillRoundedRectangle(control.toFloat(), 10.0f);
+	g.fillRoundedRectangle(osc1Area.toFloat(), 10.0f);
+	g.fillRoundedRectangle(osc2Area.toFloat(), 10.0f);
+	g.fillRoundedRectangle(lfoArea.toFloat(), 10.0f);
+	g.fillRoundedRectangle(filterArea.toFloat(), 10.0f);
+	g.fillRoundedRectangle(ADSRArea.toFloat(), 10.0f);
+	g.fillRoundedRectangle(subArea.toFloat(), 10.0f);
+	g.fillRoundedRectangle(tweekArea.toFloat(), 10.0f);
 	//g.fillRect(noiseArea);
 	//g.setColour(Colour(0xff555555));
 	//g.fillRect(plotArea.reduced(itemMargin));
@@ -573,6 +573,7 @@ void MainComponent::initGUI()
 	attackSlider.setRange(0.01, 1, 0.01);
 	attackSlider.addListener(this);
 
+
 	addAndMakeVisible(decaySlider);
 	decaySlider.setSliderStyle(Slider::SliderStyle::LinearVertical);
 	decaySlider.setTextBoxStyle(Slider::TextBoxBelow, false, 50, 20);
@@ -584,6 +585,7 @@ void MainComponent::initGUI()
 	sustainSlider.setTextBoxStyle(Slider::TextBoxBelow, false, 50, 20);
 	sustainSlider.setRange(0.01, 1, 0.01);
 	sustainSlider.addListener(this);
+
 
 	addAndMakeVisible(releaseSlider);
 	releaseSlider.setSliderStyle(Slider::SliderStyle::LinearVertical);

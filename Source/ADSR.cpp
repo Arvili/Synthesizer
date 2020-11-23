@@ -12,10 +12,10 @@ ADSr::ADSr()
 
 	output = 0;
 	env_stage = env_off;
-	attackLength = 1;
+	attackLength = 0.01;
 	decayLength = 0.2;
 	sustainLevel = 1;
-	releaseLength = 0.2;
+	releaseLength = 0.01;
 	currentSampleRate = 44100;
 	updateAttack(attackLength);
 	updateDecay(decayLength);

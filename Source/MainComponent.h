@@ -12,13 +12,14 @@ class MainComponent : public AudioAppComponent,
 					  public Slider::Listener,
 					  //public Slider::LookAndFeelMethods,
 					  //public Button::Listener,
-					  //public MidiKeyboardStateListener,
+					  public MidiKeyboardStateListener,
+						private MidiInputCallback,
 					  public KeyListener
 					  // DocumentWindow
 {
 public:
-	MidiKeyboardState keyboardState;
-	MidiKeyboardComponent keyboardComponent;
+	//MidiKeyboardState keyboardState;
+	//MidiKeyboardComponent keyboardComponent;
 
 
 	MainComponent();
@@ -261,28 +262,32 @@ public:
 
 	}
 	*/
-	/*void handleNoteOn(MidiKeyboardState*, int midiChannel, int midiNoteNumber, float velocity) override
+	void handleNoteOn(MidiKeyboardState*, int midiChannel, int midiNoteNumber, float velocity) override
 	{
 		if (!isAddingFromMidiInput)
 		{
 			auto m = MidiMessage::noteOn(midiChannel, midiNoteNumber, velocity);
 			m.setTimeStamp(Time::getMillisecondCounterHiRes() * 0.001);
-			postMessageToList(m, "On-Screen Keyboard");
+			
 		}
 	};
-	void handleNoteOff(MidiKeyboardState*, int midiChannel, int midiNoteNumber, /*float velocity*///)
-	/* override
+
+	void handleNoteOff(MidiKeyboardState*, int midiChannel, int midiNoteNumber, float velocity) override
 	{
 		if (!isAddingFromMidiInput)
 		{
 			auto m = MidiMessage::noteOff(midiChannel, midiNoteNumber);
 			m.setTimeStamp(Time::getMillisecondCounterHiRes() * 0.001);
-			postMessageToList(m, "On-Screen Keyboard");
+			
 		}
-	};*/
+	};
 	
 
+	void populateMidiList();
+	void setMidiInput(int index);
 
+	void handleIncomingMidiMessage(juce::MidiInput* source, const juce::MidiMessage& message) override;
+	
 private:
 	Label oscillator1_label;
 	Label oscillator2_label;
@@ -358,6 +363,16 @@ private:
 
 	double osc1Freq;
 	double osc2Freq;
+
+
+	AudioDeviceManager deviceManager;           
+	ComboBox midiInputList;                    
+	Label midiInputListLabel;
+	int lastInputIndex = 0;                           
+	bool isAddingFromMidiInput = false;              
+
+	MidiKeyboardState keyboardState;           
+	MidiKeyboardComponent keyboardComponent;   
 	
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)

@@ -25,6 +25,8 @@ MainComponent::MainComponent()
 
 	setAudioChannels(0, 2);	//Set 2 output channels, left and right
 
+	keyboardState.addListener(this);
+
 }
 
 MainComponent::~MainComponent()
@@ -257,6 +259,59 @@ void MainComponent::updatePanning()
 	}
 }
 
+void MainComponent::populateMidiList()
+{
+	midiInputList.setTextWhenNoChoicesAvailable("No MIDI Inputs Enabled");
+	auto midiInputs = juce::MidiInput::getAvailableDevices();
+
+	StringArray midiInputNames;
+
+	for (auto input : midiInputs)
+		midiInputNames.add(input.name);
+
+	midiInputList.addItemList(midiInputNames, 1);
+	midiInputList.onChange = [this] { setMidiInput(midiInputList.getSelectedItemIndex()); };
+
+	// find the first enabled device and use that by default
+	for (auto input : midiInputs)
+	{
+		if (deviceManager.isMidiInputDeviceEnabled(input.identifier))
+		{
+			setMidiInput(midiInputs.indexOf(input));
+			break;
+		}
+	}
+
+	// if no enabled devices were found just use the first one in the list
+	if (midiInputList.getSelectedId() == 0)
+		setMidiInput(0);
+}
+
+void MainComponent::setMidiInput(int index)
+{
+	auto list = MidiInput::getAvailableDevices();
+
+	deviceManager.removeMidiInputDeviceCallback(list[lastInputIndex].identifier, this);
+
+	auto newInput = list[index];
+
+	if (!deviceManager.isMidiInputDeviceEnabled(newInput.identifier))
+		deviceManager.setMidiInputDeviceEnabled(newInput.identifier, true);
+
+	deviceManager.addMidiInputDeviceCallback(newInput.identifier, this);
+	midiInputList.setSelectedId(index + 1, juce::dontSendNotification);
+
+	lastInputIndex = index;
+}
+
+void MainComponent::handleIncomingMidiMessage(juce::MidiInput* source, const juce::MidiMessage& message)
+{
+	const juce::ScopedValueSetter<bool> scopedInputFlag(isAddingFromMidiInput, true);
+	keyboardState.processNextMidiEvent(message);
+	//postMessageToList(message, source->getName());
+}
+
+
 void MainComponent::releaseResources()
 {
    
@@ -363,6 +418,7 @@ void MainComponent::resized()
 	Rectangle<int> area = getLocalBounds();
 	Rectangle<int> control = area.removeFromTop(area.getHeight() / 4).reduced(itemMargin);
 	Rectangle<int> panArea = control.removeFromRight(control.getWidth() / 5);
+	Rectangle<int> midiInputArea = control.removeFromLeft(control.getWidth() / 4);
 
 	Rectangle<int> controlArea = area;
 	Rectangle<int> oscillatorArea = controlArea.removeFromLeft(3*(controlArea.getWidth() / 7));
@@ -426,6 +482,7 @@ void MainComponent::resized()
 	pan_label.setBounds(panArea.removeFromLeft(panArea.getHeight()/3));
 	panSlider.setBounds(panArea);
 
+	midiInputList.setBounds(midiInputArea);
 }
 
 void MainComponent::initGUI()
@@ -626,4 +683,7 @@ void MainComponent::initGUI()
 	panSlider.setRange(-1, 1, 0.01);
 	//panSlider.setTextValueSuffix();
 	panSlider.addListener(this);
+
+	addAndMakeVisible(midiInputList);
+	populateMidiList();
 }

@@ -7,6 +7,8 @@
 #include "Filter.h"
 #include "ADSR.h"
 #include <iostream>
+#include<cmath>
+
 
 class MainComponent : public AudioAppComponent,
 					  public Slider::Listener,
@@ -270,6 +272,16 @@ public:
 			m.setTimeStamp(Time::getMillisecondCounterHiRes() * 0.001);
 			
 		}
+		
+		double freq = pow(2.0, ((midiNoteNumber - 69.0) / 12.0) ) * 440;
+		double subfreq = pow(2.0, ((midiNoteNumber - 24 - 69) / 12)) * 440;
+		osc1.updateFrequency(freq);
+		osc2.updateFrequency(freq);
+		sub.updateFrequency(subfreq);
+		ADSR.setEnvStage(ADSr::env_attack);
+
+		std::cout << freq << std::endl;
+		
 	};
 
 	void handleNoteOff(MidiKeyboardState*, int midiChannel, int midiNoteNumber, float velocity) override
@@ -280,6 +292,7 @@ public:
 			m.setTimeStamp(Time::getMillisecondCounterHiRes() * 0.001);
 			
 		}
+		ADSR.setEnvStage(ADSr::env_release);
 	};
 	
 

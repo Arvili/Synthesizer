@@ -18,6 +18,10 @@ public:
 	void updateDetune(double defreq);
 	double getFrequency();
 
+	void setMidiNote(double freq);
+	int getMidiNote();
+
+
 
 private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Oscillator)
@@ -37,4 +41,5 @@ private:
 	double phaseShift;
 	double sawScale;
 	double detune;
+	int midiNote;
 };

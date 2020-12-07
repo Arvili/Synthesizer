@@ -71,6 +71,7 @@ void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRat
 	sub.setSampleRate(sampleRate);
 	ADSR.setSampleRate(sampleRate);
 
+
 	srand(static_cast <unsigned> (time(0)));		//Initialize srand with random variable
 
 }
@@ -303,6 +304,7 @@ void MainComponent::setMidiInput(int index)
 
 	lastInputIndex = index;
 }
+
 
 void MainComponent::handleIncomingMidiMessage(juce::MidiInput* source, const juce::MidiMessage& message)
 {

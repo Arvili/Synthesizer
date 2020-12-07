@@ -85,6 +85,7 @@ double Oscillator::returnSample()
 void Oscillator::updateFrequency(double freq)
 {
 	frequency = freq + detune;
+	setMidiNote(freq);
 	increment = frequency * wtSize / currentSampleRate;
 	sawScale = currentSampleRate / (4 * frequency);
 }
@@ -97,4 +98,14 @@ void Oscillator::updateDetune(double defreq)
 double Oscillator::getFrequency()
 {
 	return frequency;
+}
+
+void Oscillator::setMidiNote(double freq)
+{
+	midiNote = log2(freq / 440.0) * 12.0 + 69;
+}
+
+int Oscillator::getMidiNote()
+{
+	return midiNote;
 }

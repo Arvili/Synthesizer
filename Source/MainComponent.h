@@ -271,16 +271,19 @@ public:
 			auto m = MidiMessage::noteOn(midiChannel, midiNoteNumber, velocity);
 			m.setTimeStamp(Time::getMillisecondCounterHiRes() * 0.001);
 			
+			//midiEvents.addEvent(m, );
 		}
-		
+		std::cout << Time::getMillisecondCounterHiRes() << std::endl;
 		double freq = pow(2.0, ((midiNoteNumber - 69.0) / 12.0) ) * 440;
-		double subfreq = pow(2.0, ((midiNoteNumber - 24 - 69) / 12)) * 440;
+		double subfreq = pow(2.0, ((midiNoteNumber - 24.0 - 69.0) / 12.0)) * 440;
 		osc1.updateFrequency(freq);
 		osc2.updateFrequency(freq);
 		sub.updateFrequency(subfreq);
 		ADSR.setEnvStage(ADSr::env_attack);
 
-		std::cout << freq << std::endl;
+		
+
+		
 		
 	};
 
@@ -292,7 +295,12 @@ public:
 			m.setTimeStamp(Time::getMillisecondCounterHiRes() * 0.001);
 			
 		}
-		ADSR.setEnvStage(ADSr::env_release);
+		
+		if (midiNoteNumber == osc1.getMidiNote())
+		{
+			ADSR.setEnvStage(ADSr::env_release);
+		}
+		
 	};
 	
 
@@ -386,6 +394,9 @@ private:
 
 	MidiKeyboardState keyboardState;           
 	MidiKeyboardComponent keyboardComponent;   
+
+	Array<int> midiEvents[127];
+	int midiSample = 0;
 	
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)

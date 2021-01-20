@@ -10,6 +10,7 @@
 	phase = 0;
 	wtSize = 1024;
 	double s = -1;
+	double s_del = 1;
 	prevSawSample = 0;
 	prevSawSample2 = 0;
 	phaseShift = wtSize/2;
@@ -29,10 +30,22 @@
 
 	for (int k = 0; k < wtSize; k++)
 	{
-
 		trivialSawTable.insert(k, s);
 		s += 1 / (wtSize / 2);
 	}
+	for (int k = 0; k < wtSize; k++)
+	{
+		s = pow(trivialSawTable[k], 2);
+		bipolarSawTable.insert(k, s);
+	}
+	trivialSawTable.clear();
+	trivialSawTable.insert(0, 0);
+	for (int k = 1; k < wtSize; k++)
+	{
+		s = bipolarSawTable[k] - s_del;
+		trivialSawTable.insert(k, s);
+	}
+
 
 }
 
@@ -65,9 +78,9 @@ double Oscillator::returnSample()
 		sample = triangleTable[(int)phase];
 		break;
 	case 2:
-		
-		sample = sawScale * (pow(trivialSawTable[(int)phase], 2) - pow(prevSawSample, 2));
-		prevSawSample = trivialSawTable[(int)phase];
+		sample = sawScale * trivialSawTable[(int)phase];
+		//sample = sawScale * (pow(trivialSawTable[(int)phase], 2) - pow(prevSawSample, 2));
+		//prevSawSample = trivialSawTable[(int)phase];
 		break;
 	case 3:
 		sample = sawScale * (pow(trivialSawTable[(int)phase], 2) - pow(prevSawSample, 2));
@@ -82,17 +95,33 @@ double Oscillator::returnSample()
 	return sample;
 }
 
-void Oscillator::updateFrequency(double freq)
+void Oscillator::setFrequency(double freq)
 {
-	frequency = freq + detune;
+	frequency = freq;
 	setMidiNote(freq);
-	increment = frequency * wtSize / currentSampleRate;
+}
+
+void Oscillator::updateFrequency()
+{
+	increment = (frequency + detune) * wtSize / currentSampleRate;
 	sawScale = currentSampleRate / (4 * frequency);
 }
 
 void Oscillator::updateDetune(double defreq)
 {
-	detune = defreq;
+	if(defreq !=0)
+	{ 
+	int noteNumber = 12.0 * log2(frequency / 440) + 69;
+	double offset = pow(2.0, ((noteNumber + (defreq > 0) *4 -2  - 69.0) / 12.0)) * 440;
+	std::cout << defreq << std::endl;
+	double difference = -(frequency - offset) * abs(defreq);
+ 	detune = difference;
+	}
+	else
+	{
+		detune = 0;
+	}
+	updateFrequency();
 }
 
 double Oscillator::getFrequency()

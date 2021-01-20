@@ -14,7 +14,8 @@ public:
 	void updateWaveState(int state);
 	double returnSample();
 
-	void updateFrequency(double freq);
+	void setFrequency(double freq);
+	void updateFrequency();
 	void updateDetune(double defreq);
 	double getFrequency();
 
@@ -32,6 +33,7 @@ private:
 	Array<float> sineTable;
 	Array<float> triangleTable;
 	Array<float> trivialSawTable;
+	Array<float> bipolarSawTable;
 	double wtSize;
 	double frequency;
 	double phase;

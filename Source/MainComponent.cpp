@@ -50,7 +50,7 @@ void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRat
 	waveSlider2.setValue(0);				//Oscillator 2 waveform is set to sin-wave
 	frequencySlider2.setValue(0);			//Oscillator 2 detune is set to 0 Hz
 
-	lfo.updateFrequency(lfoFrequencySlider.getValue());
+	lfo.setFrequency(lfoFrequencySlider.getValue());
 	lfoAmplitudeSlider.setValue(0.5);		//LFO ampltidue is set to 0.5 dB
 
 	/*ADSR sliders positions are set*/
@@ -82,27 +82,15 @@ void MainComponent::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFil
 	auto* rightBuffer = bufferToFill.buffer->getWritePointer(1, bufferToFill.startSample);
 	double currentSample = 0;	//Init current sample as 0
 	double lfoSample = 0;		//Lfo controls through its own samples
+	int lfoMod = lfoMenu.getSelectedId();
 
 	/*Iterate over the size of audiobuffers*/
 	for (auto sample = 0; sample < bufferToFill.numSamples; ++sample)
 		{
-		lfoSample = levelLfo * lfo.returnSample();	//Lfo sample, differents between -1...1
-		switch (lfoMenu.getSelectedId()) {	//switch/case between features to affect with lfo
-		case 1:
-			break;
-		case 2:
-			osc1.updateFrequency(osc1Freq + 10*lfoSample);	//Lfo modulates the frequency of osc1 (vibrato)
-			break;
-		case 3:
-			osc2.updateFrequency(osc2Freq + 10*lfoSample); //Lfo modulates the frequency of osc2 (vibrato)
-			break;
-		case 4:
-			//filterFrequencySlider.setValue(abs(levelLfo * lfo.returnSample()));
-			filter.setCutoff(filterCutoff + lfoSample);	//Lfo modulates filter cutoff
-		}
-
 		ADSRCof = ADSR.Process();	//ADSR coeffisient, affects to overal amplitude
 
+		double lfoSample = levelLfo * lfo.returnSample();	//Lfo sample, differents between -1...1
+		if (lfoMod != 0) { performLFOMod(lfoMod, lfoSample); }
 		/*Calculate current sample*/
 		currentSample = ADSRCof*(level * osc1.returnSample() +		//Oscillator 1
 						level2 *  osc2.returnSample() +	//Oscillator 2
@@ -118,7 +106,23 @@ void MainComponent::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFil
 		delay.adddelay(rightbuffer, leftbuffer);
 	}
 	*/
+	osc1.updateFrequency();
 	
+}
+
+void MainComponent::performLFOMod(int lfoMod, double lfoSample)
+{
+	switch (lfoMod) {	//switch/case between features to affect with lfo
+		case 2:
+			osc1.setFrequency(osc1Freq + 10 * lfoSample);	//Lfo modulates the frequency of osc1 (vibrato)
+			break;
+		case 3:
+			osc2.setFrequency(osc2Freq + 10 * lfoSample); //Lfo modulates the frequency of osc2 (vibrato)
+			break;
+		case 4:
+			//filterFrequencySlider.setValue(abs(levelLfo * lfo.returnSample()));
+			filter.setCutoff(filterCutoff + lfoSample);	//Lfo modulates filter cutoff
+	}
 }
 
 
@@ -126,7 +130,6 @@ void MainComponent::updateDetune()
 {
 	/*Update oscillator 1 detune*/
 	osc1.updateDetune((double)frequencySlider.getValue());
-	
 }
 
 void MainComponent::updateAmplitude()
@@ -163,7 +166,7 @@ void MainComponent::updateWaveform2()
 void MainComponent::updateLfoFrequency()
 {
 	/*Update LFO frequency*/
-	lfo.updateFrequency(lfoFrequencySlider.getValue());
+	lfo.setFrequency(lfoFrequencySlider.getValue());
 }
 
 void MainComponent::updateLfoAmplitude()
@@ -229,7 +232,7 @@ void MainComponent::updateSub()
 void MainComponent::updateSubDetune()
 {
 	/*Update sub detune*/
-	sub.updateDetune((double)frequencySlider.getValue());
+	sub.updateDetune((double)subFrequencySlider.getValue());
 }
 
 void MainComponent::updateSubWaveform()
@@ -523,8 +526,7 @@ void MainComponent::initGUI()
 	addAndMakeVisible(frequencySlider);										//add and make visible on GUI
 	frequencySlider.setSliderStyle(Slider::SliderStyle::Rotary);			//Set slider style, usually rotary, in adsr vertical
 	frequencySlider.setTextBoxStyle(Slider::TextBoxBelow, false, 50, 20);	//Set text box below the slider
-	frequencySlider.setRange(-10, 10, 1);									//Set range of slider
-	frequencySlider.setTextValueSuffix(" Hz");								//Set suffix of slider values
+	frequencySlider.setRange(-1, 1, 0.01);									//Set range of slider							
 	frequencySlider.addListener(this);										//Add listener to listen changes of slider values
 	
 
@@ -532,7 +534,7 @@ void MainComponent::initGUI()
 	amplitudeSlider.setSliderStyle(Slider::SliderStyle::Rotary);
 	amplitudeSlider.setTextBoxStyle(Slider::TextBoxBelow, false, 50, 20);
 	amplitudeSlider.setRange(0, 1, 0.01);
-	amplitudeSlider.setTextValueSuffix(" dB");
+	amplitudeSlider.setTextValueSuffix(" dB");								//Set suffix of slider values
 	amplitudeSlider.addListener(this);
 
 	addAndMakeVisible(waveSlider);
@@ -544,8 +546,7 @@ void MainComponent::initGUI()
 	addAndMakeVisible(frequencySlider2);
 	frequencySlider2.setSliderStyle(Slider::SliderStyle::Rotary);
 	frequencySlider2.setTextBoxStyle(Slider::TextBoxBelow, false, 50, 20);
-	frequencySlider2.setRange(-10, 10, 1);
-	frequencySlider2.setTextValueSuffix(" Hz");
+	frequencySlider2.setRange(-1, 1, 0.01);
 	frequencySlider2.addListener(this);
 
 	addAndMakeVisible(amplitudeSlider2);
@@ -668,8 +669,7 @@ void MainComponent::initGUI()
 	addAndMakeVisible(subFrequencySlider);
 	subFrequencySlider.setSliderStyle(Slider::SliderStyle::Rotary);
 	subFrequencySlider.setTextBoxStyle(Slider::TextBoxBelow, false, 50, 20);
-	subFrequencySlider.setRange(-10, 10, 1);
-	subFrequencySlider.setTextValueSuffix(" Hz");
+	subFrequencySlider.setRange(-1, 1, 0.01);
 	subFrequencySlider.addListener(this);
 
 	addAndMakeVisible(noiseSlider);

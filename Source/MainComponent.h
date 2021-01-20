@@ -33,6 +33,8 @@ public:
 	void getNextAudioBlock(const AudioSourceChannelInfo& bufferToFill) override;
     void releaseResources() override;
 
+	void performLFOMod(int lfoMod, double lfoSample);
+
 	void updateDetune();
 	void updateAmplitude();
 	void updateWaveform();
@@ -169,72 +171,72 @@ public:
 		{
 			osc1Freq = 440;
 			osc2Freq = 440;
-			osc1.updateFrequency(440);
-			osc2.updateFrequency(440);
-			sub.updateFrequency(55);
+			osc1.setFrequency(440);
+			osc2.setFrequency(440);
+			sub.setFrequency(55);
 			return true;
 		}
 		if (key.getTextCharacter() == 's')
 		{
 			osc1Freq = 493.88;
 			osc2Freq = 493.88;
-			osc1.updateFrequency(493.88);
-			osc2.updateFrequency(493.88);
-			sub.updateFrequency(61.74);
+			osc1.setFrequency(493.88);
+			osc2.setFrequency(493.88);
+			sub.setFrequency(61.74);
 			return true;
 		}
 		if (key.getTextCharacter() == 'd')
 		{
 			osc1Freq = 523.25;
 			osc2Freq = 523.25;
-			osc1.updateFrequency(523.25);
-			osc2.updateFrequency(523.25);
-			sub.updateFrequency(65.41);
+			osc1.setFrequency(523.25);
+			osc2.setFrequency(523.25);
+			sub.setFrequency(65.41);
 			return true;
 		}
 		if (key.getTextCharacter() == 'f')
 		{
 			osc1Freq = 587.33;
 			osc2Freq = 587.33;
-			osc1.updateFrequency(587.33);
-			osc2.updateFrequency(587.33);
-			sub.updateFrequency(73.42);
+			osc1.setFrequency(587.33);
+			osc2.setFrequency(587.33);
+			sub.setFrequency(73.42);
 			return true;
 		}
 		if (key.getTextCharacter() == 'g')
 		{
 			osc1Freq = 659.25;
 			osc2Freq = 659.25;
-			osc1.updateFrequency(659.25);
-			osc2.updateFrequency(659.25);
-			sub.updateFrequency(82.41);
+			osc1.setFrequency(659.25);
+			osc2.setFrequency(659.25);
+			sub.setFrequency(82.41);
 			return true;
 		}
 		if (key.getTextCharacter() == 'h')
 		{
 			osc1Freq = 698.46;
 			osc2Freq = 698.46;
-			osc1.updateFrequency(698.46);
-			osc2.updateFrequency(698.46);
-			sub.updateFrequency(87.31);
+			osc1.setFrequency(698.46);
+			osc2.setFrequency(698.46);
+			sub.setFrequency(87.31);
 			return true;
 		}
 		if (key.getTextCharacter() == 'j')
 		{
 			osc1Freq = 783.99;
 			osc2Freq = 783.99;
-			osc1.updateFrequency(783.99);
-			osc2.updateFrequency(783.99);
-			sub.updateFrequency(98);
+			osc1.setFrequency(783.99);
+			osc2.setFrequency(783.99);
+			sub.setFrequency(98);
 			return true;
 		}
 		if (key.getTextCharacter() == 'k')
 		{
 			osc1Freq = 880;
 			osc2Freq = 880;
-			osc1.updateFrequency(880.00);
-			osc2.updateFrequency(880.00);
-			sub.updateFrequency(110);
+			osc1.setFrequency(880.00);
+			osc2.setFrequency(880.00);
+			sub.setFrequency(110);
 			return true;
 		}
 	};
@@ -273,12 +275,15 @@ public:
 			
 			//midiEvents.addEvent(m, );
 		}
-		std::cout << Time::getMillisecondCounterHiRes() << std::endl;
+		//std::cout << Time::getMillisecondCounterHiRes() << std::endl;
 		double freq = pow(2.0, ((midiNoteNumber - 69.0) / 12.0) ) * 440;
 		double subfreq = pow(2.0, ((midiNoteNumber - 24.0 - 69.0) / 12.0)) * 440;
-		osc1.updateFrequency(freq);
-		osc2.updateFrequency(freq);
-		sub.updateFrequency(subfreq);
+		osc1.setFrequency(freq);
+		updateDetune();
+		osc2.setFrequency(freq);
+		updateDetune2();
+		sub.setFrequency(subfreq);
+		updateSubDetune();
 		ADSR.setEnvStage(ADSr::env_attack);
 
 		
